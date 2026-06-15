@@ -12,8 +12,8 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Parcel Management API")
-                        .description("REST API documentation for parcel management system")
+                        .title("Courier Tracking System")
+                        .description("REST API documentation for courier tracking system")
                         .version("v1.0"));
     }
 }

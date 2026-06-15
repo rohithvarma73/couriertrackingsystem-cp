@@ -1,8 +1,8 @@
 package com.wip.service;
 
 import com.wip.dto.ParcelDto;
-import com.wip.entity.Parcel;
 import com.wip.entity.Customer;
+import com.wip.entity.Parcel;
 import com.wip.exception.ResourceNotFoundException;
 import com.wip.repository.CustomerRepository;
 import com.wip.repository.ParcelRepository;
@@ -24,19 +24,23 @@ public class ParcelServiceImpl implements ParcelService {
 
     @Override
     public ParcelDto addParcel(ParcelDto parcelDto) {
-        Parcel parcel = toEntity(parcelDto);
         Customer customer = customerRepository.findById(parcelDto.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + parcelDto.getCustomerId()));
+
+        Parcel parcel = new Parcel();
+        parcel.setWeight(parcelDto.getWeight());
+        parcel.setSourceAddress(parcelDto.getSourceAddress());
+        parcel.setDestinationAddress(parcelDto.getDestinationAddress());
+        parcel.setBookingDate(parcelDto.getBookingDate());
         parcel.setCustomer(customer);
+        parcel.setReceiverPhone(customer.getPhone());
+
         return toDto(parcelRepository.save(parcel));
     }
 
     @Override
     public List<ParcelDto> getAllParcels() {
-        return parcelRepository.findAll()
-                .stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+        return parcelRepository.findAll().stream().map(this::toDto).collect(Collectors.toList());
     }
 
     @Override
@@ -48,35 +52,32 @@ public class ParcelServiceImpl implements ParcelService {
 
     @Override
     public ParcelDto updateParcel(Long id, ParcelDto parcelDto) {
-        Parcel existing = parcelRepository.findById(id)
+        Parcel parcel = parcelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parcel not found with id: " + id));
 
-        existing.setReceiverPhone(parcelDto.getReceiverPhone());
-        existing.setWeight(parcelDto.getWeight());
-        existing.setSourceAddress(parcelDto.getSourceAddress());
-        existing.setDestinationAddress(parcelDto.getDestinationAddress());
-        existing.setBookingDate(parcelDto.getBookingDate());
+        Customer customer = customerRepository.findById(parcelDto.getCustomerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + parcelDto.getCustomerId()));
 
-        if (parcelDto.getCustomerId() != null) {
-            Customer customer = customerRepository.findById(parcelDto.getCustomerId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + parcelDto.getCustomerId()));
-            existing.setCustomer(customer);
-        }
+        parcel.setWeight(parcelDto.getWeight());
+        parcel.setSourceAddress(parcelDto.getSourceAddress());
+        parcel.setDestinationAddress(parcelDto.getDestinationAddress());
+        parcel.setBookingDate(parcelDto.getBookingDate());
+        parcel.setCustomer(customer);
+        parcel.setReceiverPhone(customer.getPhone());
 
-        return toDto(parcelRepository.save(existing));
+        return toDto(parcelRepository.save(parcel));
     }
 
     @Override
     public void deleteParcel(Long id) {
-        Parcel existing = parcelRepository.findById(id)
+        Parcel parcel = parcelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parcel not found with id: " + id));
-        parcelRepository.delete(existing);
+        parcelRepository.delete(parcel);
     }
 
     private ParcelDto toDto(Parcel parcel) {
         ParcelDto dto = new ParcelDto();
         dto.setParcelId(parcel.getParcelId());
-        dto.setReceiverPhone(parcel.getReceiverPhone());
         dto.setWeight(parcel.getWeight());
         dto.setSourceAddress(parcel.getSourceAddress());
         dto.setDestinationAddress(parcel.getDestinationAddress());
@@ -84,17 +85,7 @@ public class ParcelServiceImpl implements ParcelService {
         if (parcel.getCustomer() != null) {
             dto.setCustomerId(parcel.getCustomer().getCustomerId());
         }
+        dto.setReceiverPhone(parcel.getReceiverPhone());
         return dto;
-    }
-
-    private Parcel toEntity(ParcelDto dto) {
-        Parcel parcel = new Parcel();
-        parcel.setParcelId(dto.getParcelId());
-        parcel.setReceiverPhone(dto.getReceiverPhone());
-        parcel.setWeight(dto.getWeight());
-        parcel.setSourceAddress(dto.getSourceAddress());
-        parcel.setDestinationAddress(dto.getDestinationAddress());
-        parcel.setBookingDate(dto.getBookingDate());
-        return parcel;
     }
 }
