@@ -1,22 +1,23 @@
 # Courier Tracking System
 
-A Spring Boot based Courier Tracking System REST API for managing customers, parcels, shipments, and tracking updates with validation, global exception handling, Swagger documentation, and Actuator monitoring.
+A Spring Boot based Courier Tracking System REST API for managing customers, parcels, shipments, and tracking histories with validation, global exception handling, Swagger/OpenAPI documentation, Actuator monitoring, and role-based security.
 
 ## Project Overview
 
-This project is built as a capstone-style REST API using Spring Boot, Spring Data JPA, and MySQL. It provides a complete backend solution for courier management with layered architecture and clean API responses.
+This project is built as a capstone-style REST API using Spring Boot, Spring Data JPA, and MySQL. It provides a complete backend solution for courier management with layered architecture, DTO-based requests and responses, validation, and clean API responses.
 
 ## Features
 
 - Customer management.
 - Parcel booking and management.
 - Shipment creation and tracking.
-- Tracking update history.
+- Tracking update history by shipment.
 - DTO-based request and response handling.
 - Request validation using Jakarta Validation.
 - Global exception handling.
 - Swagger/OpenAPI documentation.
 - Actuator health monitoring.
+- Role-based security with USER and ADMIN access.
 
 ## Tech Stack
 
@@ -28,6 +29,7 @@ This project is built as a capstone-style REST API using Spring Boot, Spring Dat
 - MySQL
 - SpringDoc OpenAPI / Swagger
 - Spring Boot Actuator
+- Spring Security
 
 ## Project Structure
 
@@ -38,7 +40,7 @@ This project is built as a capstone-style REST API using Spring Boot, Spring Dat
 - `entity` - database entities.
 - `dto` - data transfer objects.
 - `exception` - custom exceptions and global exception handling.
-- `config` - Swagger/OpenAPI configuration.
+- `config` - security and Swagger/OpenAPI configuration.
 
 ## Prerequisites
 
@@ -74,10 +76,23 @@ spring.jpa.properties.hibernate.format_sql=true
 
 springdoc.swagger-ui.path=/swagger-ui.html
 springdoc.api-docs.path=/v3/api-docs
+springdoc.show-actuator=true
 
 management.endpoints.web.exposure.include=health,info
 management.endpoint.health.show-details=always
 ```
+
+## Security Access
+
+### USER
+Can access only GET endpoints.
+
+### ADMIN
+Can access all GET, POST, PUT, and DELETE endpoints.
+
+### Demo credentials
+- `user / user123`
+- `admin / admin123`
 
 ## How to Run
 
@@ -122,35 +137,49 @@ The application exposes useful actuator endpoints for monitoring.
 
 ### Customer APIs
 
-- `POST /api/customers` - Create a customer.
-- `GET /api/customers` - Get all customers.
-- `GET /api/customers/{id}` - Get a customer by ID.
+#### Admin only
+- `POST /api/customers/addCust` - Create a customer.
 - `PUT /api/customers/{id}` - Update a customer by ID.
 - `DELETE /api/customers/{id}` - Delete a customer by ID.
 
+#### User and Admin
+- `GET /api/customers/getAll` - Get all customers.
+- `GET /api/customers/{id}` - Get a customer by ID.
+
 ### Parcel APIs
 
-- `POST /api/parcels` - Create a parcel.
-- `GET /api/parcels` - Get all parcels.
-- `GET /api/parcels/{id}` - Get a parcel by ID.
+#### Admin only
+- `POST /api/parcels/addParcel` - Create a parcel.
 - `PUT /api/parcels/{id}` - Update a parcel by ID.
 - `DELETE /api/parcels/{id}` - Delete a parcel by ID.
 
+#### User and Admin
+- `GET /api/parcels/getAll` - Get all parcels.
+- `GET /api/parcels/{id}` - Get a parcel by ID.
+
 ### Shipment APIs
 
-- `POST /api/shipments` - Create a shipment.
-- `GET /api/shipments` - Get all shipments.
-- `GET /api/shipments/{id}` - Get a shipment by ID.
+#### Admin only
+- `POST /api/shipments/addShipment/{parcelId}` - Create a shipment for a parcel.
+- `PUT /api/shipments/{id}/location?currentLocation=Chennai` - Update current shipment location.
 - `PUT /api/shipments/{id}` - Update a shipment by ID.
 - `DELETE /api/shipments/{id}` - Delete a shipment by ID.
 
-### Tracking Update APIs
+#### User and Admin
+- `GET /api/shipments/getAll` - Get all shipments.
+- `GET /api/shipments/{id}` - Get a shipment by ID.
+- `GET /api/shipments/tracking/{trackingNumber}` - Get shipment by tracking number.
 
-- `POST /api/tracking-updates` - Add a tracking update.
-- `GET /api/tracking-updates` - Get all tracking updates.
-- `GET /api/tracking-updates/{id}` - Get a tracking update by ID.
-- `PUT /api/tracking-updates/{id}` - Update a tracking update by ID.
-- `DELETE /api/tracking-updates/{id}` - Delete a tracking update by ID.
+### Tracking History APIs
+
+#### Admin only
+- `POST /api/shipments/{shipmentId}/tracking-updates` - Add a tracking history record.
+- `PUT /api/tracking-updates/{id}` - Update a tracking history record.
+
+#### User and Admin
+- `GET /api/shipments/{shipmentId}/tracking-updates` - Get all tracking history for a shipment.
+- `GET /api/tracking-updates/{id}` - Get a tracking history record by update ID.
+- `GET /api/tracking-updates` - Get all tracking history records.
 
 ## Sample Request Bodies
 
@@ -176,25 +205,43 @@ The application exposes useful actuator endpoints for monitoring.
 }
 ```
 
-### Create Shipment
+### Update Parcel
 ```json
 {
-  "trackingNumber": "TRK1001",
-  "shipmentDate": "2026-06-12",
-  "currentLocation": "Delhi Hub",
-  "estimatedDeliveryDate": "2026-06-15",
-  "parcelId": 1
+  "receiverPhone": "9998887777",
+  "weight": 3.0,
+  "sourceAddress": "Chennai",
+  "destinationAddress": "Hyderabad",
+  "bookingDate": "2026-06-12",
+  "customerId": 1
+}
+```
+
+### Create Shipment
+No request body is required.
+
+### Update Shipment Location
+```json
+{
+  "currentLocation": "Chennai"
 }
 ```
 
 ### Create Tracking Update
 ```json
 {
-  "deliveryStatus": "In Transit",
+  "deliveryStatus": "In-Transit",
   "location": "Chennai Hub",
-  "remarks": "Parcel reached sorting center",
-  "updatedTime": "2026-06-12T18:00:00",
-  "shipmentId": 1
+  "remarks": "Parcel reached sorting center"
+}
+```
+
+### Update Tracking Update
+```json
+{
+  "deliveryStatus": "Delivered",
+  "location": "Chennai",
+  "remarks": "Package handed over to the customer"
 }
 ```
 
@@ -232,11 +279,16 @@ Spring Boot supports web-layer testing with `MockMvc` and application tests with
 ## Notes
 
 - Delete APIs return `204 No Content`.
-- Related records must exist before creating dependent records.
-- Swagger UI can be used to test all APIs interactively.
+- Shipment current location is set from the parcel source address during shipment creation.
+- Tracking history is stored per shipment ID.
+- Each tracking update creates a new update ID.
+- If no tracking updates exist for a shipment, the API can return a message like: `Update to be yet to updated`.
 
 ## Author
 
 - Name: Rohith Varma K
+- Email: [rohith.varmak@wipro.com](mailto:rohith.varmak@wipro.com)
+- Name: Dharshan K S
+- Email: [dharshan.ks@wipro.com](mailto:dharshan.ks@wipro.com)
 - Project: Courier Tracking System
 - Submission Type: Capstone Project
