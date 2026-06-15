@@ -1,0 +1,11 @@
+.mvn/
+/settings/
+bin/
+target/
+.classpath
+.gitattributes
+.project
+help.md
+mvnm.md
+mvnw
+README.md
