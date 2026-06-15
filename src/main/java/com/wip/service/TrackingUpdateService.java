@@ -4,9 +4,9 @@ import com.wip.dto.TrackingUpdateDto;
 import java.util.List;
 
 public interface TrackingUpdateService {
-    TrackingUpdateDto addTrackingUpdate(TrackingUpdateDto trackingUpdateDto);
+    TrackingUpdateDto addTrackingUpdate(Long shipmentId, TrackingUpdateDto trackingUpdateDto);
+    TrackingUpdateDto updateTrackingUpdate(Long id, TrackingUpdateDto trackingUpdateDto);
     List<TrackingUpdateDto> getAllTrackingUpdates();
     TrackingUpdateDto getTrackingUpdateById(Long id);
-    TrackingUpdateDto updateTrackingUpdate(Long id, TrackingUpdateDto trackingUpdateDto);
-    void deleteTrackingUpdate(Long id);
+    List<TrackingUpdateDto> getTrackingUpdatesByShipmentId(Long shipmentId);
 }

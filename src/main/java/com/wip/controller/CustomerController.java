@@ -31,7 +31,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "400", description = "Invalid customer data"),
             @ApiResponse(responseCode = "500", description = "Server error")
     })
-    @PostMapping
+    @PostMapping("/addCust")
     public ResponseEntity<CustomerDto> addCustomer(@Valid @RequestBody CustomerDto customerDto) {
         return ResponseEntity.ok(customerService.addCustomer(customerDto));
     }
@@ -40,7 +40,7 @@ public class CustomerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Customers retrieved successfully")
     })
-    @GetMapping
+    @GetMapping("/getAll")
     public ResponseEntity<List<CustomerDto>> getAllCustomers() {
         return ResponseEntity.ok(customerService.getAllCustomers());
     }

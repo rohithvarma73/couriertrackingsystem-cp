@@ -2,7 +2,6 @@ package com.wip.controller;
 
 import com.wip.dto.ShipmentDto;
 import com.wip.service.ShipmentService;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,16 +30,18 @@ public class ShipmentController {
             @ApiResponse(responseCode = "400", description = "Invalid shipment data"),
             @ApiResponse(responseCode = "404", description = "Parcel not found")
     })
-    @PostMapping
-    public ResponseEntity<ShipmentDto> addShipment(@Valid @RequestBody ShipmentDto shipmentDto) {
-        return ResponseEntity.ok(shipmentService.addShipment(shipmentDto));
+    @PostMapping("/addShipment/{parcelid}")
+    public ResponseEntity<ShipmentDto> addShipment(
+            @Parameter(description = "Parcel ID", required = true)
+            @PathVariable Long parcelid) {
+        return ResponseEntity.ok(shipmentService.addShipment(parcelid));
     }
 
     @Operation(summary = "Get all shipments", description = "Returns all shipments in the system.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Shipments retrieved successfully")
     })
-    @GetMapping
+    @GetMapping("/getAll")
     public ResponseEntity<List<ShipmentDto>> getAllShipments() {
         return ResponseEntity.ok(shipmentService.getAllShipments());
     }
@@ -57,18 +58,29 @@ public class ShipmentController {
         return ResponseEntity.ok(shipmentService.getShipmentById(id));
     }
 
-    @Operation(summary = "Update shipment by ID", description = "Updates an existing shipment.")
+    @Operation(summary = "Get shipment by tracking number", description = "Fetches a shipment using the tracking number.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Shipment updated successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid shipment data"),
+            @ApiResponse(responseCode = "200", description = "Shipment found"),
             @ApiResponse(responseCode = "404", description = "Shipment not found")
     })
-    @PutMapping("/{id}")
-    public ResponseEntity<ShipmentDto> updateShipment(
+    @GetMapping("/tracking/{trackingNumber}")
+    public ResponseEntity<ShipmentDto> getShipmentByTrackingNumber(
+            @Parameter(description = "Tracking number", required = true)
+            @PathVariable String trackingNumber) {
+        return ResponseEntity.ok(shipmentService.getShipmentByTrackingNumber(trackingNumber));
+    }
+
+    @Operation(summary = "Update shipment location", description = "Updates only the current location of a shipment.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Shipment location updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Shipment not found")
+    })
+    @PutMapping("/{id}/location")
+    public ResponseEntity<ShipmentDto> updateShipmentLocation(
             @Parameter(description = "Shipment ID", required = true)
             @PathVariable Long id,
-            @Valid @RequestBody ShipmentDto shipmentDto) {
-        return ResponseEntity.ok(shipmentService.updateShipment(id, shipmentDto));
+            @RequestParam String currentLocation) {
+        return ResponseEntity.ok(shipmentService.updateShipmentLocation(id, currentLocation));
     }
 
     @Operation(summary = "Delete shipment by ID", description = "Deletes a shipment using the shipment ID.")

@@ -6,8 +6,10 @@ import com.wip.entity.Shipment;
 import com.wip.exception.ResourceNotFoundException;
 import com.wip.repository.ParcelRepository;
 import com.wip.repository.ShipmentRepository;
+import com.wip.util.TrackingNumberGenerator;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,53 +25,63 @@ public class ShipmentServiceImpl implements ShipmentService {
     }
 
     @Override
-    public ShipmentDto addShipment(ShipmentDto shipmentDto) {
-        Shipment shipment = toEntity(shipmentDto);
-        Parcel parcel = parcelRepository.findById(shipmentDto.getParcelId())
-                .orElseThrow(() -> new ResourceNotFoundException("Parcel not found with id: " + shipmentDto.getParcelId()));
+    public ShipmentDto addShipment(Long parcelId) {
+        Parcel parcel = parcelRepository.findById(parcelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Parcel not found with id: " + parcelId));
+
+        Shipment shipment = new Shipment();
+        shipment.setTrackingNumber(TrackingNumberGenerator.generateTrackingNumber());
+        shipment.setShipmentDate(LocalDate.now());
+        shipment.setCurrentLocation(parcel.getSourceAddress());
+        shipment.setEstimatedDeliveryDate(LocalDate.now().plusDays(3));
         shipment.setParcel(parcel);
+
         return toDto(shipmentRepository.save(shipment));
     }
 
     @Override
     public List<ShipmentDto> getAllShipments() {
-        return shipmentRepository.findAll()
-                .stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+        return shipmentRepository.findAll().stream().map(this::toDto).collect(Collectors.toList());
     }
 
     @Override
     public ShipmentDto getShipmentById(Long id) {
+        return toDto(shipmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Shipment not found with id: " + id)));
+    }
+
+    @Override
+    public ShipmentDto getShipmentByTrackingNumber(String trackingNumber) {
+        return toDto(shipmentRepository.findByTrackingNumber(trackingNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Shipment not found with tracking number: " + trackingNumber)));
+    }
+
+    @Override
+    public ShipmentDto updateShipmentLocation(Long id, String currentLocation) {
         Shipment shipment = shipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found with id: " + id));
-        return toDto(shipment);
+        shipment.setCurrentLocation(currentLocation);
+        return toDto(shipmentRepository.save(shipment));
     }
 
     @Override
     public ShipmentDto updateShipment(Long id, ShipmentDto shipmentDto) {
-        Shipment existing = shipmentRepository.findById(id)
+        Shipment shipment = shipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found with id: " + id));
 
-        existing.setTrackingNumber(shipmentDto.getTrackingNumber());
-        existing.setShipmentDate(shipmentDto.getShipmentDate());
-        existing.setCurrentLocation(shipmentDto.getCurrentLocation());
-        existing.setEstimatedDeliveryDate(shipmentDto.getEstimatedDeliveryDate());
+        shipment.setTrackingNumber(shipmentDto.getTrackingNumber());
+        shipment.setShipmentDate(shipmentDto.getShipmentDate());
+        shipment.setCurrentLocation(shipmentDto.getCurrentLocation());
+        shipment.setEstimatedDeliveryDate(shipmentDto.getEstimatedDeliveryDate());
 
-        if (shipmentDto.getParcelId() != null) {
-            Parcel parcel = parcelRepository.findById(shipmentDto.getParcelId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Parcel not found with id: " + shipmentDto.getParcelId()));
-            existing.setParcel(parcel);
-        }
-
-        return toDto(shipmentRepository.save(existing));
+        return toDto(shipmentRepository.save(shipment));
     }
 
     @Override
     public void deleteShipment(Long id) {
-        Shipment existing = shipmentRepository.findById(id)
+        Shipment shipment = shipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found with id: " + id));
-        shipmentRepository.delete(existing);
+        shipmentRepository.delete(shipment);
     }
 
     private ShipmentDto toDto(Shipment shipment) {
@@ -83,15 +95,5 @@ public class ShipmentServiceImpl implements ShipmentService {
             dto.setParcelId(shipment.getParcel().getParcelId());
         }
         return dto;
-    }
-
-    private Shipment toEntity(ShipmentDto dto) {
-        Shipment shipment = new Shipment();
-        shipment.setShipmentId(dto.getShipmentId());
-        shipment.setTrackingNumber(dto.getTrackingNumber());
-        shipment.setShipmentDate(dto.getShipmentDate());
-        shipment.setCurrentLocation(dto.getCurrentLocation());
-        shipment.setEstimatedDeliveryDate(dto.getEstimatedDeliveryDate());
-        return shipment;
     }
 }

@@ -31,7 +31,7 @@ public class ParcelController {
             @ApiResponse(responseCode = "400", description = "Invalid parcel data"),
             @ApiResponse(responseCode = "404", description = "Customer not found")
     })
-    @PostMapping
+    @PostMapping("/addParcel")
     public ResponseEntity<ParcelDto> addParcel(@Valid @RequestBody ParcelDto parcelDto) {
         return ResponseEntity.ok(parcelService.addParcel(parcelDto));
     }
@@ -40,7 +40,7 @@ public class ParcelController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Parcels retrieved successfully")
     })
-    @GetMapping
+    @GetMapping("/getAll")
     public ResponseEntity<List<ParcelDto>> getAllParcels() {
         return ResponseEntity.ok(parcelService.getAllParcels());
     }

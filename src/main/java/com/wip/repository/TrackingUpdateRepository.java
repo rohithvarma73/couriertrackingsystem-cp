@@ -1,10 +1,10 @@
 package com.wip.repository;
 
+import com.wip.entity.TrackingUpdate;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.List;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import com.wip.entity.TrackingUpdate;
-
 public interface TrackingUpdateRepository extends JpaRepository<TrackingUpdate, Long> {
-    List<TrackingUpdate> findByShipmentShipmentId(Long shipmentId);
+    List<TrackingUpdate> findByShipment_ShipmentIdOrderByCreatedAtAsc(Long shipmentId);
 }
