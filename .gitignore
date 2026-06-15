@@ -6,5 +6,5 @@ target/
 .gitattributes
 .project
 help.md
-mvnm.cmd
+mvnw.cmd
 mvnw
