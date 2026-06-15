@@ -84,7 +84,7 @@ management.endpoint.health.show-details=always
 ### Clone the repository
 
 ```bash
-git clone <your-repository-url>
+git clone "https://gitlab1.rpsconsulting.in/26SUB0726_U03/couriertrackingsystem-cp"
 cd couriertrackingsystem
 ```
 
