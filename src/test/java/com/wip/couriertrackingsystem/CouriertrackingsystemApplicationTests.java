@@ -3,11 +3,10 @@ package com.wip.couriertrackingsystem;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@SpringBootTest(classes = CouriertrackingsystemApplication.class)
 class CouriertrackingsystemApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
-
+    @Test
+    void contextLoads() {
+    }
 }
