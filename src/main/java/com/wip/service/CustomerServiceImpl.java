@@ -77,4 +77,23 @@ public class CustomerServiceImpl implements CustomerService {
         dto.setAddress(customer.getAddress());
         return dto;
     }
+    @Override
+    public List<CustomerDto> search(String keyword) {
+        List<CustomerDto> customers = getAllCustomers();
+
+        if (keyword == null || keyword.isBlank()) {
+            return customers;
+        }
+
+        String k = keyword.toLowerCase();
+
+        return customers.stream()
+                .filter(c ->
+                        (c.getCustomerId() != null && String.valueOf(c.getCustomerId()).contains(k)) ||
+                        (c.getCustomerName() != null && c.getCustomerName().toLowerCase().contains(k)) ||
+                        (c.getPhone() != null && c.getPhone().toLowerCase().contains(k)) ||
+                        (c.getEmail() != null && c.getEmail().toLowerCase().contains(k)) ||
+                        (c.getAddress() != null && c.getAddress().toLowerCase().contains(k)))
+                .toList();
+    }
 }

@@ -10,5 +10,7 @@ public interface ShipmentService {
     ShipmentDto getShipmentByTrackingNumber(String trackingNumber);
     ShipmentDto updateShipmentLocation(Long id, String currentLocation);
     ShipmentDto updateShipment(Long id, ShipmentDto shipmentDto);
+    ShipmentDto getShipmentByParcelId(Long parcelId);
     void deleteShipment(Long id);
+    List<ShipmentDto> search(String keyword);
 }

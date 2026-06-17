@@ -15,7 +15,11 @@
     <div class="detail-card">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="fw-bold mb-0">Customer Details</h2>
-            <a th:href="@{/customers}" class="btn btn-outline-dark">Back</a>
+            
+            <div class="d-flex gap-2">
+                <a th:href="@{/customers}" class="btn btn-outline-dark">Back</a>
+                <a th:href="@{'/parcels/by-customer/' + ${customer.customerId}}" class="btn btn-info">View Parcels</a>
+            </div>
         </div>
 
         <hr>

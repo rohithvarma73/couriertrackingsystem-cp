@@ -9,4 +9,5 @@ public interface CustomerService {
     CustomerDto getCustomerById(Long id);
     CustomerDto updateCustomer(Long id, CustomerDto customerDto);
     void deleteCustomer(Long id);
+    List<CustomerDto> search(String keyword);
 }

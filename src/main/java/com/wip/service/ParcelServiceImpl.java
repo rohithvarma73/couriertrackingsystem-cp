@@ -60,6 +60,14 @@ public class ParcelServiceImpl implements ParcelService {
     }
 
     @Override
+    public List<ParcelDto> getParcelsByCustomerId(Long customerId) {
+        return parcelRepository.findByCustomer_CustomerId(customerId)
+                .stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    @Override
     public ParcelDto updateParcel(Long id, ParcelDto parcelDto) {
         Parcel parcel = parcelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parcel not found"));
@@ -98,6 +106,35 @@ public class ParcelServiceImpl implements ParcelService {
         dto.setSourceAddress(parcel.getSourceAddress());
         dto.setDestinationAddress(parcel.getDestinationAddress());
         dto.setBookingDate(parcel.getBookingDate());
+
+        if (parcel.getShipment() != null) {
+            dto.setShipmentId(parcel.getShipment().getShipmentId());
+            dto.setShipmentAvailable(true);
+        } else {
+            dto.setShipmentId(null);
+            dto.setShipmentAvailable(false);
+        }
+
         return dto;
+    }
+    @Override
+    public List<ParcelDto> search(String keyword) {
+        List<ParcelDto> parcels = getAllParcels();
+
+        if (keyword == null || keyword.isBlank()) {
+            return parcels;
+        }
+
+        String k = keyword.toLowerCase();
+
+        return parcels.stream()
+                .filter(p ->
+                        (p.getParcelId() != null && String.valueOf(p.getParcelId()).contains(k)) ||
+                        (p.getCustomerId() != null && String.valueOf(p.getCustomerId()).contains(k)) ||
+                        (p.getCustomerName() != null && p.getCustomerName().toLowerCase().contains(k)) ||
+                        (p.getReceiverPhone() != null && p.getReceiverPhone().toLowerCase().contains(k)) ||
+                        (p.getSourceAddress() != null && p.getSourceAddress().toLowerCase().contains(k)) ||
+                        (p.getDestinationAddress() != null && p.getDestinationAddress().toLowerCase().contains(k)))
+                .toList();
     }
 }

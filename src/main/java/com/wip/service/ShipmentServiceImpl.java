@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -33,6 +34,13 @@ public class ShipmentServiceImpl implements ShipmentService {
     public ShipmentDto addShipment(Long parcelId) {
         Parcel parcel = parcelRepository.findById(parcelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Parcel not found"));
+
+
+        Optional<Shipment> existingShipment = shipmentRepository.findByParcel_ParcelId(parcelId);
+        if (existingShipment.isPresent()) {
+            throw new IllegalStateException("Shipment already exists for this parcel. View the existing shipment instead.");
+        }
+        
 
         Shipment shipment = new Shipment();
         shipment.setParcel(parcel);
@@ -114,5 +122,31 @@ public class ShipmentServiceImpl implements ShipmentService {
         );
         dto.setReceiverPhone(shipment.getParcel() != null ? shipment.getParcel().getReceiverPhone() : null);
         return dto;
+    }
+    @Override
+    public ShipmentDto getShipmentByParcelId(Long parcelId) {
+        return shipmentRepository.findByParcel_ParcelId(parcelId)
+                .map(this::toDto)
+                .orElse(null);
+    }
+    @Override
+    public List<ShipmentDto> search(String keyword) {
+        List<ShipmentDto> shipments = getAllShipments();
+
+        if (keyword == null || keyword.isBlank()) {
+            return shipments;
+        }
+
+        String k = keyword.toLowerCase();
+
+        return shipments.stream()
+                .filter(s ->
+                        (s.getShipmentId() != null && String.valueOf(s.getShipmentId()).contains(k)) ||
+                        (s.getParcelId() != null && String.valueOf(s.getParcelId()).contains(k)) ||
+                        (s.getTrackingNumber() != null && s.getTrackingNumber().toLowerCase().contains(k)) ||
+                        (s.getCustomerName() != null && s.getCustomerName().toLowerCase().contains(k)) ||
+                        (s.getReceiverPhone() != null && s.getReceiverPhone().toLowerCase().contains(k)) ||
+                        (s.getCurrentLocation() != null && s.getCurrentLocation().toLowerCase().contains(k)))
+                .toList();
     }
 }

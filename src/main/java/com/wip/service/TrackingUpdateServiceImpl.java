@@ -68,6 +68,33 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         trackingUpdateRepository.delete(update);
     }
 
+    @Override
+    public List<TrackingUpdateDto> search(String keyword) {
+        List<TrackingUpdateDto> updates = getAllTrackingUpdates();
+
+        if (keyword == null || keyword.isBlank()) {
+            return updates;
+        }
+
+        String k = keyword.toLowerCase();
+
+        return updates.stream()
+                .filter(t ->
+                        (t.getUpdateId() != null && String.valueOf(t.getUpdateId()).contains(k)) ||
+                        (t.getShipmentId() != null && String.valueOf(t.getShipmentId()).contains(k)) ||
+                        (t.getTrackingNumber() != null && t.getTrackingNumber().toLowerCase().contains(k)) ||
+                        (t.getDeliveryStatus() != null && t.getDeliveryStatus().toLowerCase().contains(k)) ||
+                        (t.getLocation() != null && t.getLocation().toLowerCase().contains(k)) ||
+                        (t.getRemarks() != null && t.getRemarks().toLowerCase().contains(k))
+                )
+                .toList();
+    }
+
+    @Override
+    public List<TrackingUpdateDto> getAllTrackingUpdates() {
+        return trackingUpdateRepository.findAll().stream().map(this::toDto).toList();
+    }
+
     private TrackingUpdateDto toDto(TrackingUpdate update) {
         TrackingUpdateDto dto = new TrackingUpdateDto();
         dto.setUpdateId(update.getUpdateId());

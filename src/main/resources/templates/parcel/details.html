@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +15,6 @@
     <div class="detail-card">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="fw-bold mb-0">Parcel Details</h2>
-            <a th:href="@{/parcels}" class="btn btn-outline-dark">Back</a>
         </div>
 
         <hr>
@@ -31,15 +28,25 @@
         <p><strong>Booking Date:</strong> <span th:text="${parcel.bookingDate}"></span></p>
 
         <div class="mt-4 d-flex gap-2 flex-wrap">
-            <a sec:authorize="hasRole('ADMIN')"
-               class="btn btn-success"
-               th:href="@{'/shipments/by-parcel/' + ${parcel.parcelId}}">
-                Start Shipment
-            </a>
+            <a th:href="@{/parcels}" class="btn btn-secondary">Back</a>
+
+            <!-- If shipment already exists -->
+            <div th:if="${parcel.shipmentAvailable}">
+                <a th:href="@{'/shipments/' + ${parcel.shipmentId}}" class="btn btn-info">View Shipment</a>
+            </div>
+
+            <!-- If no shipment yet, show Start Shipment for admin -->
+            <div th:if="${!parcel.shipmentAvailable}">
+                <a sec:authorize="hasRole('ADMIN')"
+                   th:href="@{'/shipments/by-parcel/' + ${parcel.parcelId}}"
+                   class="btn btn-success">
+                    Start Shipment
+                </a>
+            </div>
 
             <a sec:authorize="hasRole('ADMIN')"
-               class="btn btn-warning text-dark"
-               th:href="@{'/parcels/' + ${parcel.parcelId} + '/edit'}">
+               th:href="@{'/parcels/' + ${parcel.parcelId} + '/edit'}"
+               class="btn btn-warning text-dark">
                 Edit
             </a>
 
