@@ -1,7 +1,6 @@
 package com.wip.service;
 
 import com.wip.dto.ParcelDto;
-
 import java.util.List;
 
 public interface ParcelService {

@@ -1,30 +1,17 @@
 package com.wip.dto;
 
-import jakarta.validation.constraints.NotNull;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class ParcelDto {
-
     private Long parcelId;
-
-    @NotNull(message = "Weight is required")
-    private BigDecimal weight;
-
-    @NotNull(message = "Source address is required")
-    private String sourceAddress;
-
-    @NotNull(message = "Destination address is required")
-    private String destinationAddress;
-
-    @NotNull(message = "Booking date is required")
-    private LocalDate bookingDate;
-
-    @NotNull(message = "Customer ID is required")
     private Long customerId;
-
+    private String customerName;
     private String receiverPhone;
+    private BigDecimal weight;
+    private String sourceAddress;
+    private String destinationAddress;
+    private LocalDate bookingDate;
 
     public Long getParcelId() {
         return parcelId;
@@ -32,6 +19,30 @@ public class ParcelDto {
 
     public void setParcelId(Long parcelId) {
         this.parcelId = parcelId;
+    }
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getReceiverPhone() {
+        return receiverPhone;
+    }
+
+    public void setReceiverPhone(String receiverPhone) {
+        this.receiverPhone = receiverPhone;
     }
 
     public BigDecimal getWeight() {
@@ -64,21 +75,5 @@ public class ParcelDto {
 
     public void setBookingDate(LocalDate bookingDate) {
         this.bookingDate = bookingDate;
-    }
-
-    public Long getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
-    }
-
-    public String getReceiverPhone() {
-        return receiverPhone;
-    }
-
-    public void setReceiverPhone(String receiverPhone) {
-        this.receiverPhone = receiverPhone;
     }
 }

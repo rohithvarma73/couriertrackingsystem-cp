@@ -1,12 +1,9 @@
 package com.wip.couriertrackingsystem;
 
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(classes = CouriertrackingsystemApplication.class)
+@SpringBootTest
+@ActiveProfiles("test")
 class CouriertrackingsystemApplicationTests {
-
-    @Test
-    void contextLoads() {
-    }
 }

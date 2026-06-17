@@ -6,86 +6,98 @@ import com.wip.entity.Parcel;
 import com.wip.exception.ResourceNotFoundException;
 import com.wip.repository.CustomerRepository;
 import com.wip.repository.ParcelRepository;
+import com.wip.repository.ShipmentRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ParcelServiceImpl implements ParcelService {
 
     private final ParcelRepository parcelRepository;
     private final CustomerRepository customerRepository;
+    private final ShipmentRepository shipmentRepository;
 
-    public ParcelServiceImpl(ParcelRepository parcelRepository, CustomerRepository customerRepository) {
+    public ParcelServiceImpl(ParcelRepository parcelRepository,
+                             CustomerRepository customerRepository,
+                             ShipmentRepository shipmentRepository) {
         this.parcelRepository = parcelRepository;
         this.customerRepository = customerRepository;
+        this.shipmentRepository = shipmentRepository;
     }
 
     @Override
     public ParcelDto addParcel(ParcelDto parcelDto) {
         Customer customer = customerRepository.findById(parcelDto.getCustomerId())
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + parcelDto.getCustomerId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
         Parcel parcel = new Parcel();
+        parcel.setCustomer(customer);
+        parcel.setReceiverPhone(customer.getPhone());
         parcel.setWeight(parcelDto.getWeight());
         parcel.setSourceAddress(parcelDto.getSourceAddress());
         parcel.setDestinationAddress(parcelDto.getDestinationAddress());
-        parcel.setBookingDate(parcelDto.getBookingDate());
-        parcel.setCustomer(customer);
-        parcel.setReceiverPhone(customer.getPhone());
+        parcel.setBookingDate(parcelDto.getBookingDate() != null ? parcelDto.getBookingDate() : LocalDate.now());
 
         return toDto(parcelRepository.save(parcel));
     }
 
     @Override
     public List<ParcelDto> getAllParcels() {
-        return parcelRepository.findAll().stream().map(this::toDto).collect(Collectors.toList());
+        return parcelRepository.findAll()
+                .stream()
+                .map(this::toDto)
+                .toList();
     }
 
     @Override
     public ParcelDto getParcelById(Long id) {
         Parcel parcel = parcelRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Parcel not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Parcel not found"));
         return toDto(parcel);
     }
 
     @Override
     public ParcelDto updateParcel(Long id, ParcelDto parcelDto) {
         Parcel parcel = parcelRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Parcel not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Parcel not found"));
 
         Customer customer = customerRepository.findById(parcelDto.getCustomerId())
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + parcelDto.getCustomerId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
+        parcel.setCustomer(customer);
+        parcel.setReceiverPhone(customer.getPhone());
         parcel.setWeight(parcelDto.getWeight());
         parcel.setSourceAddress(parcelDto.getSourceAddress());
         parcel.setDestinationAddress(parcelDto.getDestinationAddress());
         parcel.setBookingDate(parcelDto.getBookingDate());
-        parcel.setCustomer(customer);
-        parcel.setReceiverPhone(customer.getPhone());
 
         return toDto(parcelRepository.save(parcel));
     }
 
     @Override
+    @Transactional
     public void deleteParcel(Long id) {
         Parcel parcel = parcelRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Parcel not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Parcel not found"));
+
+        shipmentRepository.findByParcel_ParcelId(id).ifPresent(shipmentRepository::delete);
+
         parcelRepository.delete(parcel);
     }
 
     private ParcelDto toDto(Parcel parcel) {
         ParcelDto dto = new ParcelDto();
         dto.setParcelId(parcel.getParcelId());
+        dto.setCustomerId(parcel.getCustomer() != null ? parcel.getCustomer().getCustomerId() : null);
+        dto.setCustomerName(parcel.getCustomer() != null ? parcel.getCustomer().getCustomerName() : null);
+        dto.setReceiverPhone(parcel.getReceiverPhone());
         dto.setWeight(parcel.getWeight());
         dto.setSourceAddress(parcel.getSourceAddress());
         dto.setDestinationAddress(parcel.getDestinationAddress());
         dto.setBookingDate(parcel.getBookingDate());
-        if (parcel.getCustomer() != null) {
-            dto.setCustomerId(parcel.getCustomer().getCustomerId());
-        }
-        dto.setReceiverPhone(parcel.getReceiverPhone());
         return dto;
     }
 }

@@ -1,0 +1,127 @@
+:root{
+    --primary:#0f172a;
+    --accent:#2563eb;
+    --light:#f8fafc;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+}
+
+body{
+    background:linear-gradient(180deg,#f8fafc 0%, #eef2ff 100%);
+    color:var(--text);
+    font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+.main-wrapper{
+    min-height:80vh;
+}
+
+.navbar-custom{
+    background:rgba(15,23,42,0.95);
+    box-shadow:0 8px 30px rgba(15,23,42,0.12);
+}
+
+.navbar-custom .nav-link,
+.navbar-custom .navbar-brand{
+    color:#fff !important;
+}
+
+.navbar-custom .nav-link:hover{
+    color:#93c5fd !important;
+}
+
+.hero-section{
+    padding:90px 0;
+    background:radial-gradient(circle at top left,#1d4ed8 0%, #0f172a 65%);
+    color:white;
+}
+
+.hero-badge{
+    background:rgba(255,255,255,0.15) !important;
+    color:#fff !important;
+    padding:10px 16px;
+    font-weight:600;
+}
+
+.hero-icon{
+    font-size:5rem;
+    color:#60a5fa;
+}
+
+.hero-card,.feature-card,.form-card,.detail-card,.table-card{
+    background:var(--card);
+    border-radius:20px;
+    box-shadow:0 12px 40px rgba(15,23,42,0.08);
+}
+
+.hero-card{
+    padding:50px 30px;
+    text-align:center;
+}
+
+.feature-card{
+    padding:28px;
+    height:100%;
+    position:relative;
+    overflow:hidden;
+    transition:transform .25s ease, box-shadow .25s ease;
+}
+
+.feature-card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 16px 45px rgba(37,99,235,0.16);
+}
+
+.feature-icon{
+    font-size:2rem;
+    color:var(--accent);
+    margin-bottom:18px;
+}
+
+.page-section{
+    padding-top:40px;
+    padding-bottom:40px;
+}
+
+.form-card,.detail-card,.table-card{
+    padding:30px;
+}
+
+.footer{
+    background:#0f172a;
+    color:#fff;
+}
+
+.footer-link{
+    color:#cbd5e1;
+    text-decoration:none;
+    margin-left:16px;
+}
+
+.footer-link:hover{
+    color:#fff;
+}
+
+.table-card thead{
+    background:#eff6ff;
+}
+
+.table-card th{
+    border-bottom:0;
+}
+
+.btn-primary{
+    background:var(--accent);
+    border-color:var(--accent);
+    border-radius:12px;
+}
+
+.btn-outline-light{
+    border-radius:12px;
+}
+
+.form-control,.form-select{
+    border-radius:12px;
+    padding:14px 16px;
+}

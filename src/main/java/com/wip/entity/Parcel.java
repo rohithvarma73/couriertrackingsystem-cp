@@ -21,74 +21,73 @@ public class Parcel {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @OneToOne(mappedBy = "parcel")
+    @OneToOne(mappedBy = "parcel", cascade = CascadeType.ALL, orphanRemoval = true)
     private Shipment shipment;
 
     public Parcel() {
     }
 
-	public Long getParcelId() {
-		return parcelId;
-	}
+    public Long getParcelId() {
+        return parcelId;
+    }
 
-	public void setParcelId(Long parcelId) {
-		this.parcelId = parcelId;
-	}
+    public void setParcelId(Long parcelId) {
+        this.parcelId = parcelId;
+    }
 
-	public String getReceiverPhone() {
-		return receiverPhone;
-	}
+    public String getReceiverPhone() {
+        return receiverPhone;
+    }
 
-	public void setReceiverPhone(String receiverPhone) {
-		this.receiverPhone = receiverPhone;
-	}
+    public void setReceiverPhone(String receiverPhone) {
+        this.receiverPhone = receiverPhone;
+    }
 
-	public BigDecimal getWeight() {
-		return weight;
-	}
+    public BigDecimal getWeight() {
+        return weight;
+    }
 
-	public void setWeight(BigDecimal weight) {
-		this.weight = weight;
-	}
+    public void setWeight(BigDecimal weight) {
+        this.weight = weight;
+    }
 
-	public String getSourceAddress() {
-		return sourceAddress;
-	}
+    public String getSourceAddress() {
+        return sourceAddress;
+    }
 
-	public void setSourceAddress(String sourceAddress) {
-		this.sourceAddress = sourceAddress;
-	}
+    public void setSourceAddress(String sourceAddress) {
+        this.sourceAddress = sourceAddress;
+    }
 
-	public String getDestinationAddress() {
-		return destinationAddress;
-	}
+    public String getDestinationAddress() {
+        return destinationAddress;
+    }
 
-	public void setDestinationAddress(String destinationAddress) {
-		this.destinationAddress = destinationAddress;
-	}
+    public void setDestinationAddress(String destinationAddress) {
+        this.destinationAddress = destinationAddress;
+    }
 
-	public LocalDate getBookingDate() {
-		return bookingDate;
-	}
+    public LocalDate getBookingDate() {
+        return bookingDate;
+    }
 
-	public void setBookingDate(LocalDate bookingDate) {
-		this.bookingDate = bookingDate;
-	}
+    public void setBookingDate(LocalDate bookingDate) {
+        this.bookingDate = bookingDate;
+    }
 
-	public Customer getCustomer() {
-		return customer;
-	}
+    public Customer getCustomer() {
+        return customer;
+    }
 
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
-	}
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
 
-	public Shipment getShipment() {
-		return shipment;
-	}
+    public Shipment getShipment() {
+        return shipment;
+    }
 
-	public void setShipment(Shipment shipment) {
-		this.shipment = shipment;
-	}
-
+    public void setShipment(Shipment shipment) {
+        this.shipment = shipment;
+    }
 }

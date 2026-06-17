@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TrackingUpdateServiceImpl implements TrackingUpdateService {
@@ -27,66 +26,57 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
     @Override
     public TrackingUpdateDto addTrackingUpdate(Long shipmentId, TrackingUpdateDto trackingUpdateDto) {
         Shipment shipment = shipmentRepository.findById(shipmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shipment not found with id: " + shipmentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
 
-        TrackingUpdate update = new TrackingUpdate();
-        update.setDeliveryStatus(trackingUpdateDto.getDeliveryStatus());
-        update.setLocation(trackingUpdateDto.getLocation());
-        update.setRemarks(trackingUpdateDto.getRemarks());
-        update.setCreatedAt(LocalDateTime.now());
-        update.setShipment(shipment);
+        TrackingUpdate trackingUpdate = new TrackingUpdate();
+        trackingUpdate.setShipment(shipment);
+        trackingUpdate.setDeliveryStatus(trackingUpdateDto.getDeliveryStatus());
+        trackingUpdate.setLocation(trackingUpdateDto.getLocation());
+        trackingUpdate.setRemarks(trackingUpdateDto.getRemarks());
+        trackingUpdate.setCreatedAt(LocalDateTime.now());
 
-        TrackingUpdate saved = trackingUpdateRepository.save(update);
-        return toDto(saved);
-    }
+        shipment.setCurrentLocation(trackingUpdateDto.getLocation());
+        shipmentRepository.save(shipment);
 
-    @Override
-    public TrackingUpdateDto updateTrackingUpdate(Long id, TrackingUpdateDto trackingUpdateDto) {
-        TrackingUpdate update = trackingUpdateRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Tracking update not found with id: " + id));
-
-        update.setDeliveryStatus(trackingUpdateDto.getDeliveryStatus());
-        update.setLocation(trackingUpdateDto.getLocation());
-        update.setRemarks(trackingUpdateDto.getRemarks());
-        update.setCreatedAt(LocalDateTime.now());
-
-        return toDto(trackingUpdateRepository.save(update));
-    }
-
-    @Override
-    public List<TrackingUpdateDto> getAllTrackingUpdates() {
-        return trackingUpdateRepository.findAll()
-                .stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public TrackingUpdateDto getTrackingUpdateById(Long id) {
-        TrackingUpdate update = trackingUpdateRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Tracking update not found with id: " + id));
-        return toDto(update);
+        return toDto(trackingUpdateRepository.save(trackingUpdate));
     }
 
     @Override
     public List<TrackingUpdateDto> getTrackingUpdatesByShipmentId(Long shipmentId) {
-        List<TrackingUpdate> updates = trackingUpdateRepository.findByShipment_ShipmentIdOrderByCreatedAtAsc(shipmentId);
-        if (updates.isEmpty()) {
-            throw new ResourceNotFoundException("Update to be yet to updated for shipment id: " + shipmentId);
-        }
-        return updates.stream().map(this::toDto).collect(Collectors.toList());
+        shipmentRepository.findById(shipmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
+
+        List<TrackingUpdate> updates =
+                trackingUpdateRepository.findByShipment_ShipmentIdOrderByCreatedAtAsc(shipmentId);
+
+        return updates.stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    @Override
+    public TrackingUpdateDto getTrackingUpdateById(Long updateId) {
+        TrackingUpdate update = trackingUpdateRepository.findById(updateId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tracking update not found"));
+        return toDto(update);
+    }
+
+    @Override
+    public void deleteTrackingUpdate(Long updateId) {
+        TrackingUpdate update = trackingUpdateRepository.findById(updateId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tracking update not found"));
+        trackingUpdateRepository.delete(update);
     }
 
     private TrackingUpdateDto toDto(TrackingUpdate update) {
         TrackingUpdateDto dto = new TrackingUpdateDto();
         dto.setUpdateId(update.getUpdateId());
+        dto.setShipmentId(update.getShipment() != null ? update.getShipment().getShipmentId() : null);
+        dto.setTrackingNumber(update.getShipment() != null ? update.getShipment().getTrackingNumber() : null);
         dto.setDeliveryStatus(update.getDeliveryStatus());
         dto.setLocation(update.getLocation());
         dto.setRemarks(update.getRemarks());
         dto.setCreatedAt(update.getCreatedAt());
-        if (update.getShipment() != null) {
-            dto.setShipmentId(update.getShipment().getShipmentId());
-        }
         return dto;
     }
 }
