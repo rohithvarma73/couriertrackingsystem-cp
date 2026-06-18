@@ -7,6 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @Controller
 @RequestMapping("/tracking")
 public class TrackingUpdateUiController {
@@ -37,6 +39,7 @@ public class TrackingUpdateUiController {
     public String showAddUpdateForm(@PathVariable Long shipmentId, Model model) {
         model.addAttribute("shipment", shipmentService.getShipmentById(shipmentId));
         model.addAttribute("trackingUpdateDto", new TrackingUpdateDto());
+        model.addAttribute("today", LocalDate.now());
         return "tracking/form";
     }
 
@@ -47,7 +50,7 @@ public class TrackingUpdateUiController {
         return "redirect:/tracking/shipment/" + shipmentId;
     }
 
-    @DeleteMapping("/update/{updateId}/delete")
+    @PostMapping("/update/{updateId}/delete")
     public String deleteTrackingUpdate(@PathVariable Long updateId) {
         TrackingUpdateDto dto = trackingUpdateService.getTrackingUpdateById(updateId);
         trackingUpdateService.deleteTrackingUpdate(updateId);

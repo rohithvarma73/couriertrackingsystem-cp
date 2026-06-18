@@ -54,7 +54,7 @@ public class CustomerUiController {
         return "redirect:/customers/" + id;
     }
 
-    @DeleteMapping("/{id}/delete")
+    @PostMapping("/{id}/delete")
     public String deleteCustomer(@PathVariable Long id, Model model) {
         try {
             customerService.deleteCustomer(id);

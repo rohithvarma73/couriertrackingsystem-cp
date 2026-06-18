@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: couriertrackingsystem
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: couriertrackingsystem
+  template:
+    metadata:
+      labels:
+        app: couriertrackingsystem
+    spec:
+      containers:
+        - name: couriertrackingsystem
+          image: rohithvarma73/couriertrackingsystem:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod

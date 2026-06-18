@@ -25,6 +25,10 @@ public class Shipment {
     @JoinColumn(name = "parcel_id")
     private Parcel parcel;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_user_id", nullable = false)
+    private AppUser createdBy;
+
     @OneToMany(mappedBy = "shipment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TrackingUpdate> trackingUpdates;
 
@@ -45,6 +49,9 @@ public class Shipment {
 
     public Parcel getParcel() { return parcel; }
     public void setParcel(Parcel parcel) { this.parcel = parcel; }
+
+    public AppUser getCreatedBy() { return createdBy; }
+    public void setCreatedBy(AppUser createdBy) { this.createdBy = createdBy; }
 
     public List<TrackingUpdate> getTrackingUpdates() { return trackingUpdates; }
     public void setTrackingUpdates(List<TrackingUpdate> trackingUpdates) { this.trackingUpdates = trackingUpdates; }

@@ -68,7 +68,7 @@ public class ParcelUiController {
         return "redirect:/parcels/" + id;
     }
 
-    @DeleteMapping("/{id}/delete")
+    @PostMapping("/{id}/delete")
     public String deleteParcel(@PathVariable Long id) {
         parcelService.deleteParcel(id);
         return "redirect:/parcels";

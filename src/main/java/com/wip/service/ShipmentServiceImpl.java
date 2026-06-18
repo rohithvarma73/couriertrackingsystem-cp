@@ -1,12 +1,15 @@
 package com.wip.service;
 
 import com.wip.dto.ShipmentDto;
+import com.wip.entity.AppUser;
 import com.wip.entity.Parcel;
 import com.wip.entity.Shipment;
 import com.wip.exception.ResourceNotFoundException;
+import com.wip.repository.AppUserRepository;
 import com.wip.repository.ParcelRepository;
 import com.wip.repository.ShipmentRepository;
 import com.wip.repository.TrackingUpdateRepository;
+import com.wip.security.CurrentUserUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,29 +24,39 @@ public class ShipmentServiceImpl implements ShipmentService {
     private final ShipmentRepository shipmentRepository;
     private final ParcelRepository parcelRepository;
     private final TrackingUpdateRepository trackingUpdateRepository;
+    private final AppUserRepository appUserRepository;
 
     public ShipmentServiceImpl(ShipmentRepository shipmentRepository,
                                ParcelRepository parcelRepository,
-                               TrackingUpdateRepository trackingUpdateRepository) {
+                               TrackingUpdateRepository trackingUpdateRepository,
+                               AppUserRepository appUserRepository) {
         this.shipmentRepository = shipmentRepository;
         this.parcelRepository = parcelRepository;
         this.trackingUpdateRepository = trackingUpdateRepository;
+        this.appUserRepository = appUserRepository;
     }
 
     @Override
     public ShipmentDto addShipment(Long parcelId) {
+        String username = CurrentUserUtil.getCurrentUsername();
+        AppUser currentUser = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         Parcel parcel = parcelRepository.findById(parcelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Parcel not found"));
 
+        if (parcel.getCreatedBy() == null || !username.equals(parcel.getCreatedBy().getUsername())) {
+            throw new ResourceNotFoundException("Parcel not found");
+        }
 
         Optional<Shipment> existingShipment = shipmentRepository.findByParcel_ParcelId(parcelId);
         if (existingShipment.isPresent()) {
             throw new IllegalStateException("Shipment already exists for this parcel. View the existing shipment instead.");
         }
-        
 
         Shipment shipment = new Shipment();
         shipment.setParcel(parcel);
+        shipment.setCreatedBy(currentUser);
         shipment.setTrackingNumber("TRK-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         shipment.setShipmentDate(LocalDate.now());
         shipment.setCurrentLocation(parcel.getSourceAddress());
@@ -54,7 +67,8 @@ public class ShipmentServiceImpl implements ShipmentService {
 
     @Override
     public List<ShipmentDto> getAllShipments() {
-        return shipmentRepository.findAll()
+        String username = CurrentUserUtil.getCurrentUsername();
+        return shipmentRepository.findByCreatedBy_Username(username)
                 .stream()
                 .map(this::toDto)
                 .toList();
@@ -62,30 +76,53 @@ public class ShipmentServiceImpl implements ShipmentService {
 
     @Override
     public ShipmentDto getShipmentById(Long id) {
+        String username = CurrentUserUtil.getCurrentUsername();
         Shipment shipment = shipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
+
+        if (shipment.getCreatedBy() == null || !username.equals(shipment.getCreatedBy().getUsername())) {
+            throw new ResourceNotFoundException("Shipment not found");
+        }
+
         return toDto(shipment);
     }
 
     @Override
     public ShipmentDto getShipmentByTrackingNumber(String trackingNumber) {
+        String username = CurrentUserUtil.getCurrentUsername();
         Shipment shipment = shipmentRepository.findByTrackingNumber(trackingNumber)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
+
+        if (shipment.getCreatedBy() == null || !username.equals(shipment.getCreatedBy().getUsername())) {
+            throw new ResourceNotFoundException("Shipment not found");
+        }
+
         return toDto(shipment);
     }
 
     @Override
     public ShipmentDto updateShipmentLocation(Long id, String currentLocation) {
+        String username = CurrentUserUtil.getCurrentUsername();
         Shipment shipment = shipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
+
+        if (shipment.getCreatedBy() == null || !username.equals(shipment.getCreatedBy().getUsername())) {
+            throw new ResourceNotFoundException("Shipment not found");
+        }
+
         shipment.setCurrentLocation(currentLocation);
         return toDto(shipmentRepository.save(shipment));
     }
 
     @Override
     public ShipmentDto updateShipment(Long id, ShipmentDto shipmentDto) {
+        String username = CurrentUserUtil.getCurrentUsername();
         Shipment shipment = shipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
+
+        if (shipment.getCreatedBy() == null || !username.equals(shipment.getCreatedBy().getUsername())) {
+            throw new ResourceNotFoundException("Shipment not found");
+        }
 
         shipment.setCurrentLocation(shipmentDto.getCurrentLocation());
         shipment.setEstimatedDeliveryDate(shipmentDto.getEstimatedDeliveryDate());
@@ -100,11 +137,44 @@ public class ShipmentServiceImpl implements ShipmentService {
     @Transactional
     @Override
     public void deleteShipment(Long id) {
+        String username = CurrentUserUtil.getCurrentUsername();
         Shipment shipment = shipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
 
+        if (shipment.getCreatedBy() == null || !username.equals(shipment.getCreatedBy().getUsername())) {
+            throw new ResourceNotFoundException("Shipment not found");
+        }
+
         trackingUpdateRepository.deleteByShipment_ShipmentId(id);
         shipmentRepository.delete(shipment);
+    }
+
+    @Override
+    public ShipmentDto getShipmentByParcelId(Long parcelId) {
+        String username = CurrentUserUtil.getCurrentUsername();
+        return shipmentRepository.findByParcel_ParcelId(parcelId)
+                .filter(s -> s.getCreatedBy() != null && username.equals(s.getCreatedBy().getUsername()))
+                .map(this::toDto)
+                .orElse(null);
+    }
+
+    @Override
+    public List<ShipmentDto> search(String keyword) {
+        List<ShipmentDto> shipments = getAllShipments();
+        if (keyword == null || keyword.isBlank()) {
+            return shipments;
+        }
+
+        String k = keyword.toLowerCase();
+        return shipments.stream()
+                .filter(s ->
+                        (s.getShipmentId() != null && String.valueOf(s.getShipmentId()).contains(k)) ||
+                        (s.getParcelId() != null && String.valueOf(s.getParcelId()).contains(k)) ||
+                        (s.getTrackingNumber() != null && s.getTrackingNumber().toLowerCase().contains(k)) ||
+                        (s.getCustomerName() != null && s.getCustomerName().toLowerCase().contains(k)) ||
+                        (s.getReceiverPhone() != null && s.getReceiverPhone().toLowerCase().contains(k)) ||
+                        (s.getCurrentLocation() != null && s.getCurrentLocation().toLowerCase().contains(k)))
+                .toList();
     }
 
     private ShipmentDto toDto(Shipment shipment) {
@@ -122,31 +192,5 @@ public class ShipmentServiceImpl implements ShipmentService {
         );
         dto.setReceiverPhone(shipment.getParcel() != null ? shipment.getParcel().getReceiverPhone() : null);
         return dto;
-    }
-    @Override
-    public ShipmentDto getShipmentByParcelId(Long parcelId) {
-        return shipmentRepository.findByParcel_ParcelId(parcelId)
-                .map(this::toDto)
-                .orElse(null);
-    }
-    @Override
-    public List<ShipmentDto> search(String keyword) {
-        List<ShipmentDto> shipments = getAllShipments();
-
-        if (keyword == null || keyword.isBlank()) {
-            return shipments;
-        }
-
-        String k = keyword.toLowerCase();
-
-        return shipments.stream()
-                .filter(s ->
-                        (s.getShipmentId() != null && String.valueOf(s.getShipmentId()).contains(k)) ||
-                        (s.getParcelId() != null && String.valueOf(s.getParcelId()).contains(k)) ||
-                        (s.getTrackingNumber() != null && s.getTrackingNumber().toLowerCase().contains(k)) ||
-                        (s.getCustomerName() != null && s.getCustomerName().toLowerCase().contains(k)) ||
-                        (s.getReceiverPhone() != null && s.getReceiverPhone().toLowerCase().contains(k)) ||
-                        (s.getCurrentLocation() != null && s.getCurrentLocation().toLowerCase().contains(k)))
-                .toList();
     }
 }

@@ -21,6 +21,10 @@ public class Parcel {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_user_id", nullable = false)
+    private AppUser createdBy;
+
     @OneToOne(mappedBy = "parcel", cascade = CascadeType.ALL, orphanRemoval = true)
     private Shipment shipment;
 
@@ -81,6 +85,14 @@ public class Parcel {
 
     public void setCustomer(Customer customer) {
         this.customer = customer;
+    }
+
+    public AppUser getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(AppUser createdBy) {
+        this.createdBy = createdBy;
     }
 
     public Shipment getShipment() {

@@ -1,14 +1,7 @@
 package com.wip.entity;
 
+import jakarta.persistence.*;
 import java.util.List;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-
 
 @Entity
 @Table(name = "customer")
@@ -22,6 +15,10 @@ public class Customer {
     private String email;
     private String phone;
     private String address;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_user_id", nullable = false)
+    private AppUser createdBy;
 
     @OneToMany(mappedBy = "customer")
     private List<Parcel> parcels;
@@ -67,6 +64,14 @@ public class Customer {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public AppUser getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(AppUser createdBy) {
+        this.createdBy = createdBy;
     }
 
     public List<Parcel> getParcels() {

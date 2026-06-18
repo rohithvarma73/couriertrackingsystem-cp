@@ -1,12 +1,15 @@
 package com.wip.service;
 
 import com.wip.dto.ParcelDto;
+import com.wip.entity.AppUser;
 import com.wip.entity.Customer;
 import com.wip.entity.Parcel;
 import com.wip.exception.ResourceNotFoundException;
+import com.wip.repository.AppUserRepository;
 import com.wip.repository.CustomerRepository;
 import com.wip.repository.ParcelRepository;
 import com.wip.repository.ShipmentRepository;
+import com.wip.security.CurrentUserUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -19,22 +22,34 @@ public class ParcelServiceImpl implements ParcelService {
     private final ParcelRepository parcelRepository;
     private final CustomerRepository customerRepository;
     private final ShipmentRepository shipmentRepository;
+    private final AppUserRepository appUserRepository;
 
     public ParcelServiceImpl(ParcelRepository parcelRepository,
                              CustomerRepository customerRepository,
-                             ShipmentRepository shipmentRepository) {
+                             ShipmentRepository shipmentRepository,
+                             AppUserRepository appUserRepository) {
         this.parcelRepository = parcelRepository;
         this.customerRepository = customerRepository;
         this.shipmentRepository = shipmentRepository;
+        this.appUserRepository = appUserRepository;
     }
 
     @Override
     public ParcelDto addParcel(ParcelDto parcelDto) {
+        String username = CurrentUserUtil.getCurrentUsername();
+        AppUser currentUser = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         Customer customer = customerRepository.findById(parcelDto.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
+        if (customer.getCreatedBy() == null || !username.equals(customer.getCreatedBy().getUsername())) {
+            throw new ResourceNotFoundException("Customer not found");
+        }
+
         Parcel parcel = new Parcel();
         parcel.setCustomer(customer);
+        parcel.setCreatedBy(currentUser);
         parcel.setReceiverPhone(customer.getPhone());
         parcel.setWeight(parcelDto.getWeight());
         parcel.setSourceAddress(parcelDto.getSourceAddress());
@@ -46,7 +61,8 @@ public class ParcelServiceImpl implements ParcelService {
 
     @Override
     public List<ParcelDto> getAllParcels() {
-        return parcelRepository.findAll()
+        String username = CurrentUserUtil.getCurrentUsername();
+        return parcelRepository.findByCreatedBy_Username(username)
                 .stream()
                 .map(this::toDto)
                 .toList();
@@ -54,26 +70,50 @@ public class ParcelServiceImpl implements ParcelService {
 
     @Override
     public ParcelDto getParcelById(Long id) {
+        String username = CurrentUserUtil.getCurrentUsername();
         Parcel parcel = parcelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parcel not found"));
+
+        if (parcel.getCreatedBy() == null || !username.equals(parcel.getCreatedBy().getUsername())) {
+            throw new ResourceNotFoundException("Parcel not found");
+        }
+
         return toDto(parcel);
     }
 
     @Override
     public List<ParcelDto> getParcelsByCustomerId(Long customerId) {
+        String username = CurrentUserUtil.getCurrentUsername();
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        if (customer.getCreatedBy() == null || !username.equals(customer.getCreatedBy().getUsername())) {
+            throw new ResourceNotFoundException("Customer not found");
+        }
+
         return parcelRepository.findByCustomer_CustomerId(customerId)
                 .stream()
+                .filter(p -> p.getCreatedBy() != null && username.equals(p.getCreatedBy().getUsername()))
                 .map(this::toDto)
                 .toList();
     }
 
     @Override
     public ParcelDto updateParcel(Long id, ParcelDto parcelDto) {
+        String username = CurrentUserUtil.getCurrentUsername();
         Parcel parcel = parcelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parcel not found"));
 
+        if (parcel.getCreatedBy() == null || !username.equals(parcel.getCreatedBy().getUsername())) {
+            throw new ResourceNotFoundException("Parcel not found");
+        }
+
         Customer customer = customerRepository.findById(parcelDto.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        if (customer.getCreatedBy() == null || !username.equals(customer.getCreatedBy().getUsername())) {
+            throw new ResourceNotFoundException("Customer not found");
+        }
 
         parcel.setCustomer(customer);
         parcel.setReceiverPhone(customer.getPhone());
@@ -88,12 +128,35 @@ public class ParcelServiceImpl implements ParcelService {
     @Override
     @Transactional
     public void deleteParcel(Long id) {
+        String username = CurrentUserUtil.getCurrentUsername();
         Parcel parcel = parcelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parcel not found"));
 
-        shipmentRepository.findByParcel_ParcelId(id).ifPresent(shipmentRepository::delete);
+        if (parcel.getCreatedBy() == null || !username.equals(parcel.getCreatedBy().getUsername())) {
+            throw new ResourceNotFoundException("Parcel not found");
+        }
 
+        shipmentRepository.findByParcel_ParcelId(id).ifPresent(shipmentRepository::delete);
         parcelRepository.delete(parcel);
+    }
+
+    @Override
+    public List<ParcelDto> search(String keyword) {
+        List<ParcelDto> parcels = getAllParcels();
+        if (keyword == null || keyword.isBlank()) {
+            return parcels;
+        }
+
+        String k = keyword.toLowerCase();
+        return parcels.stream()
+                .filter(p ->
+                        (p.getParcelId() != null && String.valueOf(p.getParcelId()).contains(k)) ||
+                        (p.getCustomerId() != null && String.valueOf(p.getCustomerId()).contains(k)) ||
+                        (p.getCustomerName() != null && p.getCustomerName().toLowerCase().contains(k)) ||
+                        (p.getReceiverPhone() != null && p.getReceiverPhone().toLowerCase().contains(k)) ||
+                        (p.getSourceAddress() != null && p.getSourceAddress().toLowerCase().contains(k)) ||
+                        (p.getDestinationAddress() != null && p.getDestinationAddress().toLowerCase().contains(k)))
+                .toList();
     }
 
     private ParcelDto toDto(Parcel parcel) {
@@ -116,25 +179,5 @@ public class ParcelServiceImpl implements ParcelService {
         }
 
         return dto;
-    }
-    @Override
-    public List<ParcelDto> search(String keyword) {
-        List<ParcelDto> parcels = getAllParcels();
-
-        if (keyword == null || keyword.isBlank()) {
-            return parcels;
-        }
-
-        String k = keyword.toLowerCase();
-
-        return parcels.stream()
-                .filter(p ->
-                        (p.getParcelId() != null && String.valueOf(p.getParcelId()).contains(k)) ||
-                        (p.getCustomerId() != null && String.valueOf(p.getCustomerId()).contains(k)) ||
-                        (p.getCustomerName() != null && p.getCustomerName().toLowerCase().contains(k)) ||
-                        (p.getReceiverPhone() != null && p.getReceiverPhone().toLowerCase().contains(k)) ||
-                        (p.getSourceAddress() != null && p.getSourceAddress().toLowerCase().contains(k)) ||
-                        (p.getDestinationAddress() != null && p.getDestinationAddress().toLowerCase().contains(k)))
-                .toList();
     }
 }
