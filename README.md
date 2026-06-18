@@ -1,69 +1,95 @@
 # Courier Tracking System
 
-A Spring Boot based Courier Tracking System REST API for managing customers, parcels, shipments, and tracking histories with validation, global exception handling, Swagger/OpenAPI documentation, Actuator monitoring, and role-based security.
+A Spring Boot-based Courier Tracking System with REST APIs and a Thymeleaf frontend for managing customers, parcels, shipments, and tracking updates. The project includes validation, DTO-based data flow, global exception handling, Swagger/OpenAPI documentation, Actuator monitoring, and role-based security.
 
-## Project Overview
+## Overview
 
-This project is built as a capstone-style REST API using Spring Boot, Spring Data JPA, and MySQL. It provides a complete backend solution for courier management with layered architecture, DTO-based requests and responses, validation, and clean API responses.
+This project is designed as a full-stack courier management application. The backend exposes secure REST APIs, while the frontend provides browser-based screens for common operations such as viewing customers, booking parcels, creating shipments, and tracking delivery history.
 
-## Features
+The application follows a layered architecture with controller, service, repository, entity, DTO, exception, and config packages. It is built to be easy to test, easy to extend, and suitable for capstone or academic evaluation.
+
+## Key Features
 
 - Customer management.
-- Parcel booking and management.
-- Shipment creation and tracking.
-- Tracking update history by shipment.
+- Parcel booking and parcel history by customer.
+- Shipment creation from parcels.
+- Shipment tracking and tracking update history.
+- Thymeleaf-based frontend pages.
+- Role-based access control with USER and ADMIN roles.
 - DTO-based request and response handling.
-- Request validation using Jakarta Validation.
-- Global exception handling.
+- Jakarta validation for clean input checks.
+- Global exception handling for consistent API errors.
 - Swagger/OpenAPI documentation.
-- Actuator health monitoring.
-- Role-based security with USER and ADMIN access.
+- Spring Boot Actuator health monitoring.
+- Bootstrap-based responsive UI.
 
 ## Tech Stack
 
-- Java 17
-- Spring Boot 3.5.x
-- Spring Web
-- Spring Data JPA
-- Hibernate Validator
-- MySQL
-- SpringDoc OpenAPI / Swagger
-- Spring Boot Actuator
-- Spring Security
+- Java 17.
+- Spring Boot 3.5.x.
+- Spring Web.
+- Spring Data JPA.
+- Hibernate Validator.
+- MySQL.
+- Thymeleaf.
+- Bootstrap 5.
+- Spring Security.
+- SpringDoc OpenAPI / Swagger.
+- Spring Boot Actuator.
+
+## Application Modules
+
+### Backend
+- REST APIs for customers, parcels, shipments, and tracking updates.
+- Service layer for business logic.
+- Repository layer for database access.
+- DTOs for request and response mapping.
+- Validation and exception handling.
+- Security configuration for role-based access.
+
+### Frontend
+- Customer list, add, edit, and details screens.
+- Parcel list, parcel details, customer-wise parcel list, and parcel form.
+- Shipment list, shipment details, shipment edit, and shipment creation flow.
+- Tracking list, tracking details, and tracking update screens.
+- Search results page for searching across customers, parcels, shipments, and tracking updates.
+- Shared navbar, footer, and scripts fragments.
 
 ## Project Structure
 
-- `controller` - REST API endpoints.
-- `service` - business logic interfaces.
+- `controller` - REST and UI controllers.
+- `service` - service interfaces.
 - `serviceimpl` - service implementations.
 - `repository` - JPA repository interfaces.
 - `entity` - database entities.
 - `dto` - data transfer objects.
 - `exception` - custom exceptions and global exception handling.
 - `config` - security and Swagger/OpenAPI configuration.
+- `templates` - Thymeleaf frontend pages.
+- `static` - CSS, JavaScript, images, and favicon.
 
 ## Prerequisites
 
-Before running the project, make sure you have:
+Before running the application, make sure you have:
 
-- Java 17 or later installed.
-- Maven installed.
-- MySQL Server running.
+- Java 17 or later.
+- Maven.
+- MySQL Server.
 - An IDE such as IntelliJ IDEA or Eclipse.
 
 ## Database Setup
 
-Create a MySQL database for the project:
+Create the database in MySQL:
 
 ```sql
 CREATE DATABASE courier_tracking_system;
 ```
 
-If your database name is different, update it in `application.properties`.
+If you want a different database name, update the datasource URL in `application.properties`.
 
 ## Configuration
 
-Update `src/main/resources/application.properties` with your MySQL credentials.
+Update `src/main/resources/application.properties` with your local database and app settings.
 
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/courier_tracking_system
@@ -82,19 +108,23 @@ management.endpoints.web.exposure.include=health,info
 management.endpoint.health.show-details=always
 ```
 
-## Security Access
+## Security Model
 
 ### USER
-Can access only GET endpoints.
+- Can access GET endpoints.
+- Can view lists and details.
+- Can search records.
 
 ### ADMIN
-Can access all GET, POST, PUT, and DELETE endpoints.
+- Can access GET, POST, PUT, and DELETE endpoints.
+- Can create, update, and delete customers, parcels, shipments, and tracking updates.
+- Can use all frontend actions including add, edit, and delete.
 
-### Demo credentials
+### Demo Credentials
 - `user / user123`
 - `admin / admin123`
 
-## How to Run
+## Running the Application
 
 ### Clone the repository
 
@@ -103,83 +133,133 @@ git clone "https://gitlab1.rpsconsulting.in/26SUB0726_U03/couriertrackingsystem-
 cd couriertrackingsystem
 ```
 
-### Run the application
-
-Using Maven:
+### Start with Maven
 
 ```bash
 mvn spring-boot:run
 ```
 
-Or run the main class:
+### Or run the main class
 
-```bash
-CouriertrackingsystemApplication
-```
+Run `CouriertrackingsystemApplication` from your IDE.
+
+## Frontend Pages
+
+### Public and shared pages
+- Home page.
+- Login page.
+- Search results page.
+- Navbar, footer, and scripts fragments.
+
+### Customer pages
+- Customer list.
+- Add customer.
+- Edit customer.
+- Customer details.
+- View parcels for a customer.
+
+### Parcel pages
+- Parcel list.
+- Parcel details.
+- Customer-wise parcel list.
+- Add parcel form.
+- Edit parcel form.
+
+### Shipment pages
+- Shipment list.
+- Shipment details.
+- Start shipment from parcel.
+- Edit shipment form.
+- Shipment tracking view.
+
+### Tracking pages
+- Tracking list.
+- Tracking details.
+- Add tracking update form.
+- Update tracking page.
+
+## Main User Flow
+
+### Customer to Parcel flow
+1. Open customer details.
+2. Click **View Parcels**.
+3. Open the customer parcel list page.
+4. Click **Add Parcel**.
+5. Parcel form opens with the customer ID already filled and hidden.
+
+### Parcel to Shipment flow
+1. Open parcel details.
+2. Start shipment for the parcel.
+3. Shipment is created using the parcel information.
+
+### Shipment to Tracking flow
+1. Open tracking page.
+2. View shipment tracking details.
+3. Add tracking updates as admin.
 
 ## Swagger Documentation
 
-Once the application starts, open:
+Once the application is running, open:
 
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - OpenAPI JSON: `http://localhost:8080/v3/api-docs`
 
-Swagger is useful for testing and exploring all API endpoints in one place.
+Swagger helps test the REST APIs and inspect request/response structures.
 
 ## Actuator Endpoints
 
-The application exposes useful actuator endpoints for monitoring.
+Useful monitoring endpoints include:
 
 - Health: `http://localhost:8080/actuator/health`
 - Info: `http://localhost:8080/actuator/info`
 
-## API Endpoints
+## REST API Endpoints
 
 ### Customer APIs
 
 #### Admin only
 - `POST /api/customers/addCust` - Create a customer.
-- `PUT /api/customers/{id}` - Update a customer by ID.
-- `DELETE /api/customers/{id}` - Delete a customer by ID.
+- `PUT /api/customers/{id}` - Update a customer.
+- `DELETE /api/customers/{id}` - Delete a customer.
 
 #### User and Admin
 - `GET /api/customers/getAll` - Get all customers.
-- `GET /api/customers/{id}` - Get a customer by ID.
+- `GET /api/customers/{id}` - Get customer by ID.
 
 ### Parcel APIs
 
 #### Admin only
 - `POST /api/parcels/addParcel` - Create a parcel.
-- `PUT /api/parcels/{id}` - Update a parcel by ID.
-- `DELETE /api/parcels/{id}` - Delete a parcel by ID.
+- `PUT /api/parcels/{id}` - Update a parcel.
+- `DELETE /api/parcels/{id}` - Delete a parcel.
 
 #### User and Admin
 - `GET /api/parcels/getAll` - Get all parcels.
-- `GET /api/parcels/{id}` - Get a parcel by ID.
+- `GET /api/parcels/{id}` - Get parcel by ID.
 
 ### Shipment APIs
 
 #### Admin only
 - `POST /api/shipments/addShipment/{parcelId}` - Create a shipment for a parcel.
-- `PUT /api/shipments/{id}/location?currentLocation=Chennai` - Update current shipment location.
-- `PUT /api/shipments/{id}` - Update a shipment by ID.
-- `DELETE /api/shipments/{id}` - Delete a shipment by ID.
+- `PUT /api/shipments/{id}/location?currentLocation=Chennai` - Update shipment location.
+- `PUT /api/shipments/{id}` - Update shipment by ID.
+- `DELETE /api/shipments/{id}` - Delete shipment by ID.
 
 #### User and Admin
 - `GET /api/shipments/getAll` - Get all shipments.
-- `GET /api/shipments/{id}` - Get a shipment by ID.
+- `GET /api/shipments/{id}` - Get shipment by ID.
 - `GET /api/shipments/tracking/{trackingNumber}` - Get shipment by tracking number.
 
 ### Tracking History APIs
 
 #### Admin only
-- `POST /api/shipments/{shipmentId}/tracking-updates` - Add a tracking history record.
-- `PUT /api/tracking-updates/{id}` - Update a tracking history record.
+- `POST /api/shipments/{shipmentId}/tracking-updates` - Add a tracking record.
+- `PUT /api/tracking-updates/{id}` - Update a tracking record.
 
 #### User and Admin
-- `GET /api/shipments/{shipmentId}/tracking-updates` - Get all tracking history for a shipment.
-- `GET /api/tracking-updates/{id}` - Get a tracking history record by update ID.
-- `GET /api/tracking-updates` - Get all tracking history records.
+- `GET /api/shipments/{shipmentId}/tracking-updates` - Get tracking history for a shipment.
+- `GET /api/tracking-updates/{id}` - Get tracking record by ID.
+- `GET /api/tracking-updates` - Get all tracking records.
 
 ## Sample Request Bodies
 
@@ -217,9 +297,6 @@ The application exposes useful actuator endpoints for monitoring.
 }
 ```
 
-### Create Shipment
-No request body is required.
-
 ### Update Shipment Location
 ```json
 {
@@ -247,10 +324,10 @@ No request body is required.
 
 ## Validation and Error Handling
 
-The project uses:
+The application uses:
 - `@Valid` in controllers.
-- Jakarta validation annotations like `@NotBlank`, `@NotNull`, `@Email`, and `@Positive`.
-- A global exception handler for validation and custom exceptions.
+- Jakarta validation annotations such as `@NotBlank`, `@NotNull`, `@Email`, and `@Positive`.
+- A global exception handler for validation failures and custom exceptions.
 
 Example error response:
 
@@ -272,17 +349,20 @@ Recommended test areas:
 - Controller tests.
 - Service tests.
 - Validation error tests.
-- Resource not found exception tests.
+- Exception handling tests.
+- Security access tests.
+- Frontend navigation and form submission checks.
 
-Spring Boot supports web-layer testing with `MockMvc` and application tests with `@SpringBootTest`.
+Use `MockMvc` for web-layer tests and `@SpringBootTest` for full integration tests.
 
 ## Notes
 
 - Delete APIs return `204 No Content`.
-- Shipment current location is set from the parcel source address during shipment creation.
-- Tracking history is stored per shipment ID.
-- Each tracking update creates a new update ID.
-- If no tracking updates exist for a shipment, the API can return a message like: `Update to be yet to updated`.
+- Shipment current location is initialized from the parcel source address during shipment creation.
+- Tracking history is stored per shipment.
+- Each tracking update creates a new update record.
+- If no tracking updates exist for a shipment, the UI can show a message like `No tracking updates yet`.
+- The frontend uses Bootstrap for responsive layout and Thymeleaf fragments for common UI sections.
 
 ## Author
 
