@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +11,7 @@
 <div th:replace="fragments/navbar :: navbar"></div>
 
 <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <div>
             <h2 class="fw-bold mb-1">Parcels</h2>
             <p class="text-muted mb-0">Manage parcel bookings and delivery details.</p>
@@ -51,11 +49,9 @@
                         <td th:text="${parcel.bookingDate}"></td>
                         <td class="text-end">
                             <a th:href="@{'/parcels/' + ${parcel.parcelId}}" class="btn btn-info btn-sm text-white">View</a>
-
                             <a sec:authorize="hasRole('ADMIN')"
                                th:href="@{'/parcels/' + ${parcel.parcelId} + '/edit'}"
                                class="btn btn-warning btn-sm">Edit</a>
-
                             <form sec:authorize="hasRole('ADMIN')"
                                   th:action="@{'/parcels/' + ${parcel.parcelId} + '/delete'}"
                                   method="post" style="display:inline;">

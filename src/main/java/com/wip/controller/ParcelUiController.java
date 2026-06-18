@@ -32,8 +32,12 @@ public class ParcelUiController {
     }
 
     @GetMapping("/new")
-    public String showCreateForm(Model model) {
-        model.addAttribute("parcelDto", new ParcelDto());
+    public String showCreateForm(@RequestParam(value = "customerId", required = false) Long customerId, Model model) {
+        ParcelDto parcelDto = new ParcelDto();
+        if (customerId != null) {
+            parcelDto.setCustomerId(customerId);
+        }
+        model.addAttribute("parcelDto", parcelDto);
         model.addAttribute("today", LocalDate.now());
         return "parcel/form";
     }
