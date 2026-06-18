@@ -1,5 +1,5 @@
 .mvn/
-/settings/
+.settings/
 bin/
 target/
 .classpath
