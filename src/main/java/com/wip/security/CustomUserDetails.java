@@ -20,6 +20,18 @@ public class CustomUserDetails implements UserDetails {
         return user.getUserId();
     }
 
+    public Long getCustomerId() {
+        return user.getCustomer() != null ? user.getCustomer().getCustomerId() : null;
+    }
+
+    public String getRole() {
+        return user.getRole();
+    }
+
+    public AppUser getAppUser() {
+        return user;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));

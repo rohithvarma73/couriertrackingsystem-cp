@@ -1,45 +1,117 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Start Shipment</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Start Shipment – Nexus Logistics</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
 
-<div th:replace="fragments/navbar :: navbar"></div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<div class="container page-section">
-    <div class="detail-card">
-        <h2 class="fw-bold mb-3">Start Shipment</h2>
+<main class="container mt-6 mb-8">
 
-        <div th:if="${shipmentAlreadyExists}" class="alert alert-warning">
-            <h5 class="mb-2">Shipment already started</h5>
-            <p class="mb-3">This parcel already has a shipment.</p>
-            <a th:href="@{'/shipments/' + ${existingShipment.shipmentId}}" class="btn btn-info">View Shipment</a>
-            <a th:href="@{'/parcels/' + ${parcelId}}" class="btn btn-outline-dark ms-2">Back to Parcel</a>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <h1 class="text-lg font-bold">Start Shipment</h1>
+            <p class="text-muted text-sm mt-2"
+               th:text="'Parcel #' + ${parcelId}"></p>
         </div>
-
-        <div th:unless="${shipmentAlreadyExists}">
-            <p><strong>Parcel ID:</strong> <span th:text="${parcel.parcelId}"></span></p>
-            <p><strong>Customer:</strong> <span th:text="${parcel.customerName}"></span></p>
-            <p><strong>Receiver Phone:</strong> <span th:text="${parcel.receiverPhone}"></span></p>
-            <p><strong>Source:</strong> <span th:text="${parcel.sourceAddress}"></span></p>
-            <p><strong>Destination:</strong> <span th:text="${parcel.destinationAddress}"></span></p>
-
-            <form th:action="@{'/shipments/start/' + ${parcelId}}" method="post">
-                <button type="submit" class="btn btn-success btn-lg">Start Shipment</button>
-                <a th:href="@{'/parcels/' + ${parcelId}}" class="btn btn-outline-dark ms-2">Cancel</a>
-            </form>
+        <div class="page-actions">
+            <a th:href="@{/parcels/{id}(id=${parcelId})}" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left"></i> Back to Parcel
+            </a>
         </div>
     </div>
-</div>
 
-<div th:replace="fragments/footer :: footer"></div>
-<div th:replace="fragments/scripts :: scripts"></div>
+    <!-- Error flash -->
+    <div th:if="${errorMessage}" class="error-box mb-6">
+        <span class="error-box-icon"><i class="fa-solid fa-circle-exclamation"></i></span>
+        <div class="error-box-body">
+            <div class="error-box-title">Error</div>
+            <div class="error-box-message" th:text="${errorMessage}"></div>
+        </div>
+    </div>
+
+    <!-- Already exists warning -->
+    <div th:if="${shipmentAlreadyExists}" class="card mt-6">
+        <div class="text-center">
+            <i class="fa-solid fa-triangle-exclamation text-warning"
+               style="font-size: 2.5rem;"></i>
+            <h2 class="font-semibold mt-4 mb-2">A shipment already exists for this parcel</h2>
+            <p class="text-muted mb-6">This parcel already has an active shipment associated with it.</p>
+            <div class="flex justify-center gap-3">
+                <a th:if="${existingShipment != null}"
+                   th:href="@{/shipments/{id}(id=${existingShipment.shipmentId})}"
+                   class="btn btn-primary">
+                    <i class="fa-solid fa-eye"></i> View existing shipment
+                </a>
+                <a th:href="@{/parcels/{id}(id=${parcelId})}" class="btn btn-secondary">
+                    <i class="fa-solid fa-arrow-left"></i> Back to parcel
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start shipment form -->
+    <div th:unless="${shipmentAlreadyExists}">
+
+        <!-- Parcel summary -->
+        <div class="card mt-6">
+            <h2 class="font-semibold mb-4">Parcel Summary</h2>
+            <div class="info-grid">
+
+                <div class="info-item">
+                    <label>Parcel ID</label>
+                    <p class="text-mono" th:text="${parcel.parcelId}">—</p>
+                </div>
+
+                <div class="info-item">
+                    <label>Customer</label>
+                    <p th:text="${parcel.customerName}">—</p>
+                </div>
+
+                <div class="info-item">
+                    <label>Pickup Address</label>
+                    <p th:text="${parcel.sourceAddress}">—</p>
+                </div>
+
+                <div class="info-item">
+                    <label>Delivery Address</label>
+                    <p th:text="${parcel.destinationAddress}">—</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Confirmation form -->
+        <div class="form-card mt-6">
+            <p class="text-muted mb-6">
+                <i class="fa-solid fa-circle-info text-accent"></i>
+                This will create a tracking number and begin the shipment process for this parcel.
+            </p>
+            <form th:action="@{/shipments/start/{id}(id=${parcelId})}" method="post">
+                <div class="form-actions">
+                    <a th:href="@{/parcels/{id}(id=${parcelId})}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-truck"></i> Start Shipment
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/scripts :: scripts}"></div>
 
 </body>
 </html>

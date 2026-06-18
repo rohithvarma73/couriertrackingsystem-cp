@@ -11,6 +11,7 @@ public interface TrackingUpdateRepository extends JpaRepository<TrackingUpdate, 
     List<TrackingUpdate> findByShipment_ShipmentIdOrderByCreatedAtAsc(Long shipmentId);
     List<TrackingUpdate> findByCreatedBy_Username(String username);
     Optional<TrackingUpdate> findByUpdateIdAndCreatedBy_Username(Long updateId, String username);
+    List<TrackingUpdate> findByShipment_Parcel_Customer_CreatedBy_Username(String username);
 
     @Transactional
     void deleteByShipment_ShipmentId(Long shipmentId);

@@ -1,5 +1,9 @@
 package com.wip.dto;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -8,9 +12,16 @@ public class ParcelDto {
     private Long customerId;
     private String customerName;
     private String receiverPhone;
+    @NotNull(message = "Weight is required")
+    @DecimalMin(value = "0.1", message = "Weight must be greater than 0")
     private BigDecimal weight;
+    
+    @NotBlank(message = "Source address is required")
     private String sourceAddress;
+    
+    @NotBlank(message = "Destination address is required")
     private String destinationAddress;
+    
     private LocalDate bookingDate;
 
 

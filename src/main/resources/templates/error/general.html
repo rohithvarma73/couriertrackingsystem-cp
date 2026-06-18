@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Page not found — Nexus</title>
+    <title>Something went wrong — Nexus</title>
     <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </head>
 <body>
@@ -10,12 +10,14 @@
     <main class="container">
         <div class="error-layout">
             <div class="error-card">
-                <span class="error-code">404</span>
-                <h2>Page not found</h2>
-                <p>The page you're looking for doesn't exist or has been moved.</p>
+                <span class="error-code">500</span>
+                <h2 th:text="${errorTitle != null} ? ${errorTitle} : 'Something went wrong'">Something went wrong</h2>
+                <p th:text="${errorMessage != null} ? ${errorMessage} : 'An unexpected error occurred. Please try again, or contact support if this keeps happening.'">
+                    An unexpected error occurred.
+                </p>
                 <div class="flex gap-3 justify-center">
                     <a th:href="@{/dashboard}" class="btn btn-primary">Go to Dashboard</a>
-                    <a href="javascript:history.back()" class="btn btn-secondary">Go back</a>
+                    <a href="javascript:history.back()" class="btn btn-secondary">Try again</a>
                 </div>
             </div>
         </div>

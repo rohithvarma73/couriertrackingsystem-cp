@@ -12,4 +12,25 @@ public class CurrentUserUtil {
         }
         return authentication.getName();
     }
+
+    public static String getCurrentUserRole() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof CustomUserDetails details) {
+            return details.getRole();
+        }
+        return null;
+    }
+
+    public static boolean isAdmin() {
+        String role = getCurrentUserRole();
+        return "ADMIN".equals(role);
+    }
+
+    public static Long getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof CustomUserDetails details) {
+            return details.getUserId();
+        }
+        return null;
+    }
 }

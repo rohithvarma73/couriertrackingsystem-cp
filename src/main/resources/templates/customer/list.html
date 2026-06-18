@@ -1,79 +1,87 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customers</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Customers — Nexus Logistics</title>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </head>
 <body>
-<div th:replace="fragments/navbar :: navbar"></div>
-
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h2 class="fw-bold mb-1">Customers</h2>
-            <p class="text-muted mb-0">Manage customer records and account details.</p>
+    <th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+    <main class="container">
+        <div class="page-header">
+            <div class="page-header-left">
+                <h2>Customers</h2>
+                <p>All registered customers</p>
+            </div>
+            <div class="page-actions">
+                <a th:href="@{/dashboard}" class="btn btn-secondary btn-sm">
+                    <i class="fa-solid fa-arrow-left"></i> Back
+                </a>
+                <a th:href="@{/customers/new}" class="btn btn-primary btn-sm" sec:authorize="hasRole('ADMIN')">
+                    <i class="fa-solid fa-plus"></i> Add customer
+                </a>
+            </div>
         </div>
-        <div class="d-flex gap-2">
-            <a th:href="@{/}" class="btn btn-outline-dark">Back</a>
-            <a th:href="@{/customers/new}" class="btn btn-primary"
-               sec:authorize="hasAnyRole('USER','ADMIN')">Add Customer</a>
-        </div>
-    </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped align-middle mb-0">
-                    <thead class="table-dark">
+        <!-- Flash Messages -->
+        <div th:if="${successMessage}" class="success-box mb-6">
+            <i class="fa-solid fa-check-circle"></i>
+            <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${infoMessage}" class="alert alert-info mb-6">
+            <i class="fa-solid fa-circle-info"></i>
+            <span th:text="${infoMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="error-box mb-6">
+            <span class="error-box-icon"><i class="fa-solid fa-circle-exclamation"></i></span>
+            <div class="error-box-body">
+                <div class="error-box-title">Error</div>
+                <div class="error-box-message" th:text="${errorMessage}"></div>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Address</th>
-                        <th style="width: 220px;">Actions</th>
+                        <th style="text-align:right;">Actions</th>
                     </tr>
-                    </thead>
-                    <tbody>
+                </thead>
+                <tbody>
                     <tr th:each="customer : ${customers}">
-                        <td th:text="${customer.customerId}"></td>
-                        <td th:text="${customer.customerName}"></td>
+                        <td th:text="${customer.customerId}" class="text-mono"></td>
+                        <td th:text="${customer.customerName}" class="primary"></td>
                         <td th:text="${customer.email}"></td>
                         <td th:text="${customer.phone}"></td>
                         <td th:text="${customer.address}"></td>
-                        <td>
-                            <a th:href="@{'/customers/' + ${customer.customerId}}"
-                               class="btn btn-info btn-sm text-white">View</a>
-
-                            <a th:href="@{'/customers/' + ${customer.customerId} + '/edit'}"
-                               class="btn btn-warning btn-sm"
-                               sec:authorize="hasRole('ADMIN')">Edit</a>
-
-                            <form th:action="@{'/customers/' + ${customer.customerId} + '/delete'}"
-                                  method="post"
-                                  style="display:inline;"
-                                  sec:authorize="hasRole('ADMIN')">
-                                <input type="hidden" name="_method" value="delete">
-                                <button type="submit" class="btn btn-danger btn-sm"
-                                        onclick="return confirm('Delete this customer?')">Delete</button>
-                            </form>
+                        <td style="text-align:right;">
+                            <div class="flex gap-2 justify-end">
+                                <a th:href="@{'/customers/' + ${customer.customerId}}" class="btn btn-secondary btn-sm">View</a>
+                                <a th:href="@{'/customers/' + ${customer.customerId} + '/edit'}" class="btn btn-secondary btn-sm" sec:authorize="hasRole('ADMIN')">Edit</a>
+                                <form th:action="@{'/customers/' + ${customer.customerId} + '/delete'}" method="post" class="delete-form" sec:authorize="hasRole('ADMIN')">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(customers)}">
-                        <td colspan="6" class="text-center">No customers found.</td>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-state-icon"><i class="fa-solid fa-users-slash"></i></div>
+                                <p>No customers found.</p>
+                                <a th:href="@{/customers/new}" class="btn btn-primary btn-sm" sec:authorize="hasRole('ADMIN')">Add the first customer</a>
+                            </div>
+                        </td>
                     </tr>
-                    </tbody>
-                </table>
-            </div>
+                </tbody>
+            </table>
         </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </main>
+    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
 </body>
 </html>

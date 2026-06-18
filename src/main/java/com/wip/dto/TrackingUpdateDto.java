@@ -1,13 +1,19 @@
 package com.wip.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 public class TrackingUpdateDto {
     private Long updateId;
     private Long shipmentId;
     private String trackingNumber;
+    
+    @NotBlank(message = "Delivery status is required")
     private String deliveryStatus;
+    
+    @NotBlank(message = "Location is required")
     private String location;
+    
     private String remarks;
     private LocalDateTime createdAt;
 

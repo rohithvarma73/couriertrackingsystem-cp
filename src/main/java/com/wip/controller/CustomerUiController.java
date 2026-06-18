@@ -1,11 +1,14 @@
 package com.wip.controller;
 
 import com.wip.dto.CustomerDto;
+import com.wip.exception.ResourceNotFoundException;
 import com.wip.service.CustomerService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/customers")
@@ -30,9 +33,19 @@ public class CustomerUiController {
     }
 
     @PostMapping("/save")
-    public String saveCustomer(@ModelAttribute("customerDto") @Valid CustomerDto customerDto) {
-        CustomerDto saved = customerService.addCustomer(customerDto);
-        return "redirect:/customers/" + saved.getCustomerId();
+    public String saveCustomer(@Valid @ModelAttribute("customerDto") CustomerDto customerDto,
+                               BindingResult bindingResult,
+                               Model model) {
+        if (bindingResult.hasErrors()) {
+            return "customer/form";
+        }
+        try {
+            CustomerDto saved = customerService.addCustomer(customerDto);
+            return "redirect:/customers/" + saved.getCustomerId();
+        } catch (Exception ex) {
+            model.addAttribute("errorMessage", "Could not save customer: " + ex.getMessage());
+            return "customer/form";
+        }
     }
 
     @GetMapping("/{id}")
@@ -49,19 +62,40 @@ public class CustomerUiController {
 
     @PostMapping("/{id}/update")
     public String updateCustomer(@PathVariable Long id,
-                                 @ModelAttribute("customerDto") @Valid CustomerDto customerDto) {
-        customerService.updateCustomer(id, customerDto);
-        return "redirect:/customers/" + id;
+                                 @Valid @ModelAttribute("customerDto") CustomerDto customerDto,
+                                 BindingResult bindingResult,
+                                 Model model) {
+        if (bindingResult.hasErrors()) {
+            return "customer/form";
+        }
+        try {
+            customerService.updateCustomer(id, customerDto);
+            return "redirect:/customers/" + id;
+        } catch (ResourceNotFoundException ex) {
+            model.addAttribute("errorMessage", ex.getMessage());
+            return "customer/form";
+        } catch (Exception ex) {
+            model.addAttribute("errorMessage", "Could not update customer. Please try again.");
+            return "customer/form";
+        }
     }
 
     @PostMapping("/{id}/delete")
-    public String deleteCustomer(@PathVariable Long id, Model model) {
+    public String deleteCustomer(@PathVariable Long id,
+                                 Model model,
+                                 RedirectAttributes redirectAttributes) {
         try {
             customerService.deleteCustomer(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Customer deleted.");
             return "redirect:/customers";
         } catch (IllegalStateException ex) {
+            // Customer has linked parcels — show informative error
             model.addAttribute("errorMessage", ex.getMessage());
             return "customer/delete";
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Could not delete this customer. Please try again.");
+            return "redirect:/customers";
         }
     }
 }

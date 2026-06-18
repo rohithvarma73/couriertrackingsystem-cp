@@ -1,5 +1,7 @@
 package com.wip.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 public class ShipmentDto {
@@ -7,7 +9,11 @@ public class ShipmentDto {
     private Long parcelId;
     private String trackingNumber;
     private LocalDate shipmentDate;
+    
+    @NotBlank(message = "Current location is required")
     private String currentLocation;
+    
+    @NotNull(message = "Estimated delivery date is required")
     private LocalDate estimatedDeliveryDate;
     private String customerName;
     private String receiverPhone;

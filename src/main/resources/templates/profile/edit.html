@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Customer — Nexus Logistics</title>
+    <title>Edit profile — Nexus Logistics</title>
     <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </head>
 <body>
@@ -10,42 +10,40 @@
     <main class="container">
         <div class="page-header">
             <div class="page-header-left">
-                <h2 th:text="${customerDto.customerId == null} ? 'Add customer' : 'Edit customer'">Customer form</h2>
-                <p th:text="${customerDto.customerId == null} ? 'Fill in the customer details below' : 'Update this customer\'s information'"></p>
+                <h2>Edit profile</h2>
+                <p>Update your contact details</p>
             </div>
             <div class="page-actions">
-                <a th:href="${customerDto.customerId == null} ? @{/customers} : @{'/customers/' + ${customerDto.customerId}}"
-                   class="btn btn-secondary btn-sm">
+                <a th:href="@{/profile}" class="btn btn-secondary btn-sm">
                     <i class="fa-solid fa-arrow-left"></i> Cancel
                 </a>
             </div>
         </div>
 
-        <!-- Error flash -->
-        <div th:if="${errorMessage}" class="error-box mb-6">
+        <!-- Inline error from controller -->
+        <div th:if="${errorMessage}" class="error-box" style="max-width:720px; margin-bottom:1.5rem;">
             <span class="error-box-icon"><i class="fa-solid fa-circle-exclamation"></i></span>
             <div class="error-box-body">
-                <div class="error-box-title">Error</div>
+                <div class="error-box-title">Could not save profile</div>
                 <div class="error-box-message" th:text="${errorMessage}"></div>
             </div>
         </div>
 
         <div class="form-card">
-            <form th:action="${customerDto.customerId == null} ? @{/customers/save} : @{'/customers/' + ${customerDto.customerId} + '/update'}"
-                  th:object="${customerDto}" method="post">
+            <form th:action="@{/profile/update}" th:object="${customerDto}" method="post">
                 <input type="hidden" th:field="*{customerId}">
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Full name</label>
                         <input type="text" class="form-input" th:field="*{customerName}"
-                               placeholder="e.g. John Doe" required>
+                               placeholder="Your full name" required>
                         <span th:if="${#fields.hasErrors('customerName')}" th:errors="*{customerName}" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email</label>
                         <input type="email" class="form-input" th:field="*{email}"
-                               placeholder="john@example.com" required>
+                               placeholder="your@email.com" required>
                         <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
                     </div>
                     <div class="form-group">
@@ -57,18 +55,16 @@
                     <div class="form-group full-width">
                         <label class="form-label">Address</label>
                         <textarea class="form-textarea" th:field="*{address}"
-                                  placeholder="Full address" rows="2" required></textarea>
+                                  placeholder="Your full address" rows="2" required></textarea>
                         <span th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fa-solid fa-check"></i>
-                        <span th:text="${customerDto.customerId == null} ? 'Save customer' : 'Save changes'">Save</span>
+                        <i class="fa-solid fa-check"></i> Save changes
                     </button>
-                    <a th:href="${customerDto.customerId == null} ? @{/customers} : @{'/customers/' + ${customerDto.customerId}}"
-                       class="btn btn-secondary">Cancel</a>
+                    <a th:href="@{/profile}" class="btn btn-secondary">Cancel</a>
                 </div>
             </form>
         </div>

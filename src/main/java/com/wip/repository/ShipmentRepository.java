@@ -11,4 +11,5 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
     Optional<Shipment> findByParcel_ParcelId(Long parcelId);
     List<Shipment> findByCreatedBy_Username(String username);
     Optional<Shipment> findByShipmentIdAndCreatedBy_Username(Long shipmentId, String username);
+    List<Shipment> findByParcel_Customer_CreatedBy_Username(String username);
 }

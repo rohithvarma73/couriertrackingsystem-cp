@@ -31,16 +31,16 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
 
     @Override
     public TrackingUpdateDto addTrackingUpdate(Long shipmentId, TrackingUpdateDto trackingUpdateDto) {
+        if (!CurrentUserUtil.isAdmin()) {
+            throw new IllegalStateException("Only administrators can add tracking updates");
+        }
+
         String username = CurrentUserUtil.getCurrentUsername();
         AppUser currentUser = appUserRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Shipment shipment = shipmentRepository.findById(shipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
-
-        if (shipment.getCreatedBy() == null || !username.equals(shipment.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Shipment not found");
-        }
 
         TrackingUpdate trackingUpdate = new TrackingUpdate();
         trackingUpdate.setShipment(shipment);
@@ -58,13 +58,16 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
 
     @Override
     public List<TrackingUpdateDto> getTrackingUpdatesByShipmentId(Long shipmentId) {
-        String username = CurrentUserUtil.getCurrentUsername();
-
         Shipment shipment = shipmentRepository.findById(shipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
 
-        if (shipment.getCreatedBy() == null || !username.equals(shipment.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Shipment not found");
+        if (!CurrentUserUtil.isAdmin()) {
+            String username = CurrentUserUtil.getCurrentUsername();
+            if (shipment.getParcel() == null || shipment.getParcel().getCustomer() == null || 
+                shipment.getParcel().getCustomer().getCreatedBy() == null || 
+                !username.equals(shipment.getParcel().getCustomer().getCreatedBy().getUsername())) {
+                throw new ResourceNotFoundException("Shipment not found");
+            }
         }
 
         List<TrackingUpdate> updates = trackingUpdateRepository.findByShipment_ShipmentIdOrderByCreatedAtAsc(shipmentId);
@@ -73,12 +76,17 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
 
     @Override
     public TrackingUpdateDto getTrackingUpdateById(Long updateId) {
-        String username = CurrentUserUtil.getCurrentUsername();
         TrackingUpdate update = trackingUpdateRepository.findById(updateId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tracking update not found"));
 
-        if (update.getCreatedBy() == null || !username.equals(update.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Tracking update not found");
+        if (!CurrentUserUtil.isAdmin()) {
+            String username = CurrentUserUtil.getCurrentUsername();
+            if (update.getShipment() == null || update.getShipment().getParcel() == null || 
+                update.getShipment().getParcel().getCustomer() == null || 
+                update.getShipment().getParcel().getCustomer().getCreatedBy() == null || 
+                !username.equals(update.getShipment().getParcel().getCustomer().getCreatedBy().getUsername())) {
+                throw new ResourceNotFoundException("Tracking update not found");
+            }
         }
 
         return toDto(update);
@@ -86,13 +94,11 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
 
     @Override
     public void deleteTrackingUpdate(Long updateId) {
-        String username = CurrentUserUtil.getCurrentUsername();
+        if (!CurrentUserUtil.isAdmin()) {
+            throw new IllegalStateException("Only administrators can delete tracking updates");
+        }
         TrackingUpdate update = trackingUpdateRepository.findById(updateId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tracking update not found"));
-
-        if (update.getCreatedBy() == null || !username.equals(update.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Tracking update not found");
-        }
 
         trackingUpdateRepository.delete(update);
     }
@@ -118,8 +124,11 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
 
     @Override
     public List<TrackingUpdateDto> getAllTrackingUpdates() {
+        if (CurrentUserUtil.isAdmin()) {
+            return trackingUpdateRepository.findAll().stream().map(this::toDto).toList();
+        }
         String username = CurrentUserUtil.getCurrentUsername();
-        return trackingUpdateRepository.findByCreatedBy_Username(username)
+        return trackingUpdateRepository.findByShipment_Parcel_Customer_CreatedBy_Username(username)
                 .stream()
                 .map(this::toDto)
                 .toList();

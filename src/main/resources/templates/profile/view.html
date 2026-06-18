@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile — Nexus Logistics</title>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+</head>
+<body>
+    <th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+    <main class="container">
+        <div class="page-header">
+            <div class="page-header-left">
+                <h2>My profile</h2>
+                <p>Your personal and contact details</p>
+            </div>
+            <div class="page-actions">
+                <a th:href="@{/profile/edit}" class="btn btn-primary btn-sm">
+                    <i class="fa-solid fa-pen"></i> Edit profile
+                </a>
+            </div>
+        </div>
+
+        <div class="card" style="max-width: 700px;">
+            <!-- Avatar + name row -->
+            <div class="flex items-center gap-4 mb-6" style="padding-bottom: 1.5rem; border-bottom: 1px solid var(--border);">
+                <div style="width:64px; height:64px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.75rem; font-weight:700; color:white; flex-shrink:0;"
+                     th:text="${#strings.toUpperCase(#strings.substring(customer.customerName, 0, 1))}">J</div>
+                <div>
+                    <h3 th:text="${customer.customerName}" style="margin-bottom:.2rem;">Customer Name</h3>
+                    <p class="text-secondary text-sm" th:text="${customer.email}">email@example.com</p>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Customer ID</label>
+                    <p class="text-mono" th:text="'#' + ${customer.customerId}">#1</p>
+                </div>
+                <div class="info-item">
+                    <label>Phone number</label>
+                    <p th:text="${customer.phone}">—</p>
+                </div>
+                <div class="info-item" style="grid-column: span 2;">
+                    <label>Address</label>
+                    <p th:text="${customer.address}">—</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>

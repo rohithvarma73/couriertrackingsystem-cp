@@ -23,6 +23,9 @@ public class Customer {
     @OneToMany(mappedBy = "customer")
     private List<Parcel> parcels;
 
+    @OneToOne(mappedBy = "customer")
+    private AppUser appUser;
+
     public Customer() {
     }
 
@@ -80,5 +83,13 @@ public class Customer {
 
     public void setParcels(List<Parcel> parcels) {
         this.parcels = parcels;
+    }
+
+    public AppUser getAppUser() {
+        return appUser;
+    }
+
+    public void setAppUser(AppUser appUser) {
+        this.appUser = appUser;
     }
 }

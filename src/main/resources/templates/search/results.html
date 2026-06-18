@@ -1,56 +1,121 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Results</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <title>Search — Nexus Logistics</title>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </head>
 <body>
-
-<div th:replace="~{fragments/navbar :: navbar}"></div>
-
-<div class="container page-section">
-    <div class="detail-card">
-        <h2 class="fw-bold mb-4">Search Results</h2>
-
-        <div th:if="${trackingUpdates == null || #lists.isEmpty(trackingUpdates)}" class="alert alert-warning">
-            No tracking updates found.
+    <th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+    <main class="container">
+        <div class="page-header">
+            <div class="page-header-left">
+                <h2>Search</h2>
+                <p th:if="${q != null}" th:text="'Results for: ' + ${q}">Results</p>
+            </div>
         </div>
 
-        <div th:if="${trackingUpdates != null && !#lists.isEmpty(trackingUpdates)}" class="table-responsive">
-            <table class="table table-striped table-bordered align-middle">
-                <thead class="table-dark">
-                <tr>
-                    <th>Update ID</th>
-                    <th>Shipment ID</th>
-                    <th>Tracking Number</th>
-                    <th>Status</th>
-                    <th>Location</th>
-                    <th>Remarks</th>
-                    <th>Created At</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="t : ${trackingUpdates}">
-                    <td th:text="${t.updateId}">1</td>
-                    <td th:text="${t.shipmentId}">1</td>
-                    <td th:text="${t.trackingNumber}">TRK123</td>
-                    <td th:text="${t.deliveryStatus}">In Transit</td>
-                    <td th:text="${t.location}">Mumbai</td>
-                    <td th:text="${t.remarks}">Delivered soon</td>
-                    <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">2026-06-18 12:00</td>
-                </tr>
-                </tbody>
-            </table>
+        <!-- Search bar -->
+        <div class="card mb-6">
+            <form th:action="@{/search}" method="get" class="flex gap-3 items-center">
+                <div class="input-icon-wrap" style="flex:1;">
+                    <i class="fa-solid fa-magnifying-glass input-icon"></i>
+                    <input type="text" name="q" class="form-input" th:value="${q}"
+                           placeholder="Search customers, parcels, tracking numbers..." autofocus>
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
         </div>
-    </div>
-</div>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
-<div th:replace="~{fragments/scripts :: scripts}"></div>
+        <!-- Customers -->
+        <div th:if="${customers != null and !#lists.isEmpty(customers)}" class="mb-6">
+            <p class="section-label mb-3">Customers</p>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="c : ${customers}">
+                            <td class="text-mono" th:text="${c.customerId}"></td>
+                            <td class="primary" th:text="${c.customerName}"></td>
+                            <td th:text="${c.email}"></td>
+                            <td th:text="${c.phone}"></td>
+                            <td style="text-align:right;">
+                                <a th:href="@{'/customers/' + ${c.customerId}}" class="btn btn-secondary btn-sm">View</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
+        <!-- Parcels -->
+        <div th:if="${parcels != null and !#lists.isEmpty(parcels)}" class="mb-6">
+            <p class="section-label mb-3">Parcels</p>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th><th>Customer</th><th>From</th><th>To</th><th>Date</th><th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${parcels}">
+                            <td class="text-mono" th:text="${p.parcelId}"></td>
+                            <td class="primary" th:text="${p.customerName}"></td>
+                            <td th:text="${p.sourceAddress}"></td>
+                            <td th:text="${p.destinationAddress}"></td>
+                            <td th:text="${p.bookingDate}"></td>
+                            <td style="text-align:right;">
+                                <a th:href="@{'/parcels/' + ${p.parcelId}}" class="btn btn-secondary btn-sm">View</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Shipments -->
+        <div th:if="${shipments != null and !#lists.isEmpty(shipments)}" class="mb-6">
+            <p class="section-label mb-3">Shipments</p>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Tracking #</th><th>Customer</th><th>Location</th><th>Est. delivery</th><th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="s : ${shipments}">
+                            <td class="text-mono" th:text="${s.trackingNumber}"></td>
+                            <td class="primary" th:text="${s.customerName}"></td>
+                            <td th:text="${s.currentLocation}"></td>
+                            <td th:text="${s.estimatedDeliveryDate}"></td>
+                            <td style="text-align:right;">
+                                <a th:href="@{'/shipments/' + ${s.shipmentId}}" class="btn btn-secondary btn-sm">View</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- No results -->
+        <div th:if="${q != null and
+                      (customers == null or #lists.isEmpty(customers)) and
+                      (parcels == null or #lists.isEmpty(parcels)) and
+                      (shipments == null or #lists.isEmpty(shipments))}" class="text-center" style="padding: 3rem 0;">
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                <p>No results found for "<strong th:text="${q}">query</strong>".</p>
+                <p class="text-sm text-muted">Try searching by name, email, or tracking number.</p>
+            </div>
+        </div>
+
+    </main>
+    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
 </body>
 </html>

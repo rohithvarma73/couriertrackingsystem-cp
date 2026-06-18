@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Page not found — Nexus</title>
+    <title>Action not allowed — Nexus</title>
     <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </head>
 <body>
@@ -10,9 +10,13 @@
     <main class="container">
         <div class="error-layout">
             <div class="error-card">
-                <span class="error-code">404</span>
-                <h2>Page not found</h2>
-                <p>The page you're looking for doesn't exist or has been moved.</p>
+                <span style="font-size:4rem; color:var(--danger); display:block; margin-bottom:1rem;">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </span>
+                <h2 th:text="${errorTitle != null} ? ${errorTitle} : 'Action not allowed'">Action not allowed</h2>
+                <p th:text="${errorMessage != null} ? ${errorMessage} : 'This action cannot be completed right now.'">
+                    This action cannot be completed.
+                </p>
                 <div class="flex gap-3 justify-center">
                     <a th:href="@{/dashboard}" class="btn btn-primary">Go to Dashboard</a>
                     <a href="javascript:history.back()" class="btn btn-secondary">Go back</a>

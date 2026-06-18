@@ -1,79 +1,60 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Courier Tracking System</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <meta name="description" content="Nexus — fast, reliable parcel delivery and real-time tracking.">
+    <title>Nexus — Ship smarter</title>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </head>
 <body>
+    <th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
 
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+    <main class="container">
+        <div class="hero">
+            <div class="hero-eyebrow">
+                <i class="fa-solid fa-bolt"></i>&nbsp;Fast · Reliable · Transparent
+            </div>
+            <h1 class="hero-title">Ship smarter.<br><em>Track everything.</em></h1>
+            <div class="hero-rule"></div>
+            <p class="hero-subtitle">
+                Book parcels, follow deliveries in real time, and manage shipments — all in one place.
+                No spreadsheets. No guesswork.
+            </p>
+            <div class="hero-actions">
+                <a th:href="@{/register}" class="btn btn-primary btn-lg">
+                    <i class="fa-solid fa-user-plus"></i> Create a free account
+                </a>
+                <a th:href="@{/login}" class="btn btn-secondary btn-lg">
+                    Sign in
+                </a>
+            </div>
+        </div>
 
-<section class="hero-section">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <span class="badge rounded-pill text-bg-light hero-badge">Courier Tracking System</span>
-                <h1 class="display-4 fw-bold mt-3">Track shipments with speed, clarity, and confidence.</h1>
-                <p class="lead fw-bold text-white mt-3">
-                    Manage customers, parcels, shipments, and live tracking updates from a clean, modern dashboard.
-                </p>
-                <div class="d-flex gap-3 mt-4">
-                    <a th:href="@{/customers}" class="btn btn-primary btn-lg">Get Started</a>
-                    <a th:href="@{/tracking}" class="btn btn-outline-light btn-lg">Track Parcel</a>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon indigo">
+                    <i class="fa-solid fa-shield-halved"></i>
                 </div>
+                <h3>Your data, only yours</h3>
+                <p>Each account sees only its own parcels and shipments. No one else can view your delivery history.</p>
             </div>
-            <div class="col-lg-6 text-center mt-5 mt-lg-0">
-                <div class="hero-card">
-                    <i class="fa-solid fa-box-open hero-icon"></i>
-                    <div class="mt-3">
-                        <h4 class="mb-1">Live Operations</h4>
-                        <p class="text-muted mb-0">End-to-end courier workflow in one place.</p>
-                    </div>
+            <div class="feature-card">
+                <div class="feature-icon green">
+                    <i class="fa-solid fa-location-dot"></i>
                 </div>
+                <h3>Live tracking updates</h3>
+                <p>Follow your parcel at every step — from pickup to delivery. Updates appear the moment they happen.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon orange">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+                <h3>Book in minutes</h3>
+                <p>Fill in your details once, then book any number of parcels instantly. Your profile stays saved.</p>
             </div>
         </div>
-    </div>
-</section>
+    </main>
 
-<section class="container py-5">
-    <div class="row g-4">
-        <div class="col-md-6 col-lg-3">
-            <div class="feature-card">
-                <i class="fa-solid fa-users feature-icon"></i>
-                <h5>Customers</h5>
-                <p>Maintain customer records and manage profiles efficiently.</p>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="feature-card">
-                <i class="fa-solid fa-box feature-icon"></i>
-                <h5>Parcels</h5>
-                <p>Create parcel entries and track package movement.</p>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="feature-card">
-                <i class="fa-solid fa-truck feature-icon"></i>
-                <h5>Shipments</h5>
-                <p>Handle shipment dispatch and delivery status updates.</p>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="feature-card">
-                <i class="fa-solid fa-location-dot feature-icon"></i>
-                <h5>Tracking</h5>
-                <p>Monitor updates and provide real-time parcel visibility.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<div th:replace="~{fragments/footer :: footer}"></div>
-<div th:replace="~{fragments/scripts :: scripts}"></div>
-
+    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
 </body>
 </html>

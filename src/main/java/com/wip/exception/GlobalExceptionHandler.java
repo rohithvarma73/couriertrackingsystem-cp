@@ -9,9 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice
+/**
+ * Handles exceptions for REST API controllers only (@RestController).
+ * UI controllers (@Controller) are handled by UiExceptionHandler.
+ */
+@RestControllerAdvice(annotations = RestController.class)
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)

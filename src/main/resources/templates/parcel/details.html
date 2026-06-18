@@ -1,71 +1,111 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parcel Details</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Parcel Details – Nexus Logistics</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
-<div th:replace="fragments/navbar :: navbar"></div>
 
-<div class="container page-section">
-    <div class="detail-card">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="fw-bold mb-0">Parcel Details</h2>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container mt-6 mb-8">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <h1 class="text-lg font-bold">Parcel Details</h1>
+            <p class="text-muted text-sm mt-2"
+               th:text="'Parcel #' + ${parcel.parcelId}"></p>
         </div>
-
-        <hr>
-        <p><strong>ID:</strong> <span th:text="${parcel.parcelId}"></span></p>
-        <p><strong>Customer ID:</strong> <span th:text="${parcel.customerId}"></span></p>
-        <p><strong>Customer Name:</strong> <span th:text="${parcel.customerName}"></span></p>
-        <p><strong>Receiver Phone:</strong> <span th:text="${parcel.receiverPhone}"></span></p>
-        <p><strong>Weight:</strong> <span th:text="${parcel.weight}"></span></p>
-        <p><strong>Source Address:</strong> <span th:text="${parcel.sourceAddress}"></span></p>
-        <p><strong>Destination Address:</strong> <span th:text="${parcel.destinationAddress}"></span></p>
-        <p><strong>Booking Date:</strong> <span th:text="${parcel.bookingDate}"></span></p>
-
-        <div class="mt-4 d-flex gap-2 flex-wrap">
-            <a th:href="@{/parcels}" class="btn btn-secondary">Back</a>
-
-            <!-- If shipment already exists -->
-            <div th:if="${parcel.shipmentAvailable}">
-                <a th:href="@{'/shipments/' + ${parcel.shipmentId}}" class="btn btn-info">View Shipment</a>
-            </div>
-
-            <!-- If no shipment yet, show Start Shipment for admin -->
-            <div th:if="${!parcel.shipmentAvailable}">
-                <a sec:authorize="hasRole('ADMIN')"
-                   th:href="@{'/shipments/by-parcel/' + ${parcel.parcelId}}"
-                   class="btn btn-success">
-                    Start Shipment
-                </a>
-            </div>
-
-            <a sec:authorize="hasRole('ADMIN')"
-               th:href="@{'/parcels/' + ${parcel.parcelId} + '/edit'}"
-               class="btn btn-warning text-dark">
-                Edit
+        <div class="page-actions flex gap-3">
+            <a th:href="@{/parcels}" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left"></i> Back to List
             </a>
 
-            <form sec:authorize="hasRole('ADMIN')"
-                  th:action="@{'/parcels/' + ${parcel.parcelId} + '/delete'}"
-                  method="post"
-                  style="display:inline;">
-                <input type="hidden" name="_method" value="delete"/>
-                <button type="submit"
-                        class="btn btn-danger"
-                        onclick="return confirm('Delete this parcel?');">
-                    Delete
-                </button>
-            </form>
+            <!-- Edit – admin only -->
+            <a sec:authorize="hasRole('ADMIN')"
+               th:href="@{/parcels/{id}/edit(id=${parcel.parcelId})}"
+               class="btn btn-primary">
+                <i class="fa-solid fa-pen-to-square"></i> Edit
+            </a>
+
+            <!-- Start shipment – admin only, no existing shipment -->
+            <a sec:authorize="hasRole('ADMIN')"
+               th:if="${!parcel.shipmentAvailable}"
+               th:href="@{/shipments/by-parcel/{id}(id=${parcel.parcelId})}"
+               class="btn btn-success">
+                <i class="fa-solid fa-truck"></i> Start Shipment
+            </a>
+
+            <!-- View shipment – if shipment exists -->
+            <a th:if="${parcel.shipmentAvailable}"
+               th:href="@{/shipments/{sid}(sid=${parcel.shipmentId})}"
+               class="btn btn-secondary">
+                <i class="fa-solid fa-magnifying-glass"></i> View Shipment
+            </a>
         </div>
     </div>
-</div>
 
-<div th:replace="fragments/footer :: footer"></div>
-<div th:replace="fragments/scripts :: scripts"></div>
+    <!-- Main Info Card -->
+    <div class="card mt-6">
+        <div class="info-grid">
+
+            <div class="info-item">
+                <label>Parcel ID</label>
+                <p class="text-mono" th:text="${parcel.parcelId}">—</p>
+            </div>
+
+            <div class="info-item">
+                <label>Customer</label>
+                <p th:text="${parcel.customerName}">—</p>
+            </div>
+
+            <div class="info-item">
+                <label>Receiver Phone</label>
+                <p th:text="${parcel.receiverPhone}">—</p>
+            </div>
+
+            <div class="info-item">
+                <label>Weight</label>
+                <p th:text="${parcel.weight + ' kg'}">—</p>
+            </div>
+
+            <div class="info-item">
+                <label>Pickup Address</label>
+                <p th:text="${parcel.sourceAddress}">—</p>
+            </div>
+
+            <div class="info-item">
+                <label>Delivery Address</label>
+                <p th:text="${parcel.destinationAddress}">—</p>
+            </div>
+
+            <div class="info-item">
+                <label>Booking Date</label>
+                <p th:text="${parcel.bookingDate}">—</p>
+            </div>
+
+            <div class="info-item">
+                <label>Shipment Status</label>
+                <p>
+                    <span th:if="${parcel.shipmentAvailable}"
+                          class="badge badge-success">Shipped</span>
+                    <span th:unless="${parcel.shipmentAvailable}"
+                          class="badge badge-neutral">Awaiting Shipment</span>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/scripts :: scripts}"></div>
+
 </body>
 </html>

@@ -34,23 +34,23 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/error", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
-                        .requestMatchers("/", "/home").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/login", "/register", "/error", "/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/", "/dashboard").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/home").permitAll()
+                        .requestMatchers("/profile", "/profile/edit", "/profile/update").hasAnyRole("USER", "ADMIN")
 
-                        .requestMatchers("/customers", "/customers/", "/customers/new", "/customers/save").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/customers/*").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/customers/*/edit", "/customers/*/update", "/customers/*/delete").hasRole("ADMIN")
+                        .requestMatchers("/customers", "/customers/*", "/customers/*/edit", "/customers/*/update", "/customers/*/delete").hasRole("ADMIN")
 
-                        .requestMatchers("/parcels", "/parcels/", "/parcels/new", "/parcels/save").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/parcels/*").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/parcels/*/edit", "/parcels/*/update", "/parcels/*/delete").hasRole("ADMIN")
+                        .requestMatchers("/parcels", "/parcels/new", "/parcels/save", "/parcels/*").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/parcels/*/edit", "/parcels/*/update", "/parcels/*/delete").hasAnyRole("USER", "ADMIN")
 
-                        .requestMatchers("/shipments", "/shipments/", "/shipments/*").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/shipments", "/shipments/*").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/shipments/new", "/shipments/save", "/shipments/*/edit", "/shipments/*/update", "/shipments/*/delete").hasRole("ADMIN")
 
                         .requestMatchers("/tracking", "/tracking/shipment/*").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/tracking/shipment/*/new", "/tracking/shipment/*/save", "/tracking/update/*/delete").hasRole("ADMIN")
 
+                        .requestMatchers("/search").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/api/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

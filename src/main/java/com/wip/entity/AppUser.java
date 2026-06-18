@@ -13,6 +13,13 @@ public class AppUser {
     @Column(unique = true, nullable = false)
     private String username;
 
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
     @Column(nullable = false)
     private String password;
 
@@ -49,5 +56,21 @@ public class AppUser {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 }

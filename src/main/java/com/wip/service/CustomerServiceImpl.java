@@ -41,6 +41,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<CustomerDto> getAllCustomers() {
+        if (CurrentUserUtil.isAdmin()) {
+            return customerRepository.findAll().stream().map(this::toDto).toList();
+        }
         String username = CurrentUserUtil.getCurrentUsername();
         return customerRepository.findByCreatedBy_Username(username)
                 .stream()
@@ -50,12 +53,14 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerDto getCustomerById(Long id) {
-        String username = CurrentUserUtil.getCurrentUsername();
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
-        if (customer.getCreatedBy() == null || !username.equals(customer.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Customer not found");
+        if (!CurrentUserUtil.isAdmin()) {
+            String username = CurrentUserUtil.getCurrentUsername();
+            if (customer.getCreatedBy() == null || !username.equals(customer.getCreatedBy().getUsername())) {
+                throw new ResourceNotFoundException("Customer not found");
+            }
         }
 
         return toDto(customer);
@@ -63,12 +68,14 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerDto updateCustomer(Long id, CustomerDto customerDto) {
-        String username = CurrentUserUtil.getCurrentUsername();
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
-        if (customer.getCreatedBy() == null || !username.equals(customer.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Customer not found");
+        if (!CurrentUserUtil.isAdmin()) {
+            String username = CurrentUserUtil.getCurrentUsername();
+            if (customer.getCreatedBy() == null || !username.equals(customer.getCreatedBy().getUsername())) {
+                throw new ResourceNotFoundException("Customer not found");
+            }
         }
 
         customer.setCustomerName(customerDto.getCustomerName());
@@ -81,13 +88,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void deleteCustomer(Long id) {
-        String username = CurrentUserUtil.getCurrentUsername();
+        if (!CurrentUserUtil.isAdmin()) {
+            throw new IllegalStateException("Only administrators can delete customers");
+        }
+
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
-
-        if (customer.getCreatedBy() == null || !username.equals(customer.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Customer not found");
-        }
 
         if (customerRepository.existsParcelsByCustomerId(id)) {
             throw new IllegalStateException("Cannot delete customer because parcels exist for this customer");

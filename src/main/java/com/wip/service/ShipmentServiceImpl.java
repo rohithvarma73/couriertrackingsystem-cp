@@ -38,16 +38,16 @@ public class ShipmentServiceImpl implements ShipmentService {
 
     @Override
     public ShipmentDto addShipment(Long parcelId) {
+        if (!CurrentUserUtil.isAdmin()) {
+            throw new IllegalStateException("Only administrators can add shipments");
+        }
+
         String username = CurrentUserUtil.getCurrentUsername();
         AppUser currentUser = appUserRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Parcel parcel = parcelRepository.findById(parcelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Parcel not found"));
-
-        if (parcel.getCreatedBy() == null || !username.equals(parcel.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Parcel not found");
-        }
 
         Optional<Shipment> existingShipment = shipmentRepository.findByParcel_ParcelId(parcelId);
         if (existingShipment.isPresent()) {
@@ -67,8 +67,11 @@ public class ShipmentServiceImpl implements ShipmentService {
 
     @Override
     public List<ShipmentDto> getAllShipments() {
+        if (CurrentUserUtil.isAdmin()) {
+            return shipmentRepository.findAll().stream().map(this::toDto).toList();
+        }
         String username = CurrentUserUtil.getCurrentUsername();
-        return shipmentRepository.findByCreatedBy_Username(username)
+        return shipmentRepository.findByParcel_Customer_CreatedBy_Username(username)
                 .stream()
                 .map(this::toDto)
                 .toList();
@@ -76,12 +79,16 @@ public class ShipmentServiceImpl implements ShipmentService {
 
     @Override
     public ShipmentDto getShipmentById(Long id) {
-        String username = CurrentUserUtil.getCurrentUsername();
         Shipment shipment = shipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
 
-        if (shipment.getCreatedBy() == null || !username.equals(shipment.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Shipment not found");
+        if (!CurrentUserUtil.isAdmin()) {
+            String username = CurrentUserUtil.getCurrentUsername();
+            if (shipment.getParcel() == null || shipment.getParcel().getCustomer() == null || 
+                shipment.getParcel().getCustomer().getCreatedBy() == null || 
+                !username.equals(shipment.getParcel().getCustomer().getCreatedBy().getUsername())) {
+                throw new ResourceNotFoundException("Shipment not found");
+            }
         }
 
         return toDto(shipment);
@@ -89,12 +96,16 @@ public class ShipmentServiceImpl implements ShipmentService {
 
     @Override
     public ShipmentDto getShipmentByTrackingNumber(String trackingNumber) {
-        String username = CurrentUserUtil.getCurrentUsername();
         Shipment shipment = shipmentRepository.findByTrackingNumber(trackingNumber)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
 
-        if (shipment.getCreatedBy() == null || !username.equals(shipment.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Shipment not found");
+        if (!CurrentUserUtil.isAdmin()) {
+            String username = CurrentUserUtil.getCurrentUsername();
+            if (shipment.getParcel() == null || shipment.getParcel().getCustomer() == null || 
+                shipment.getParcel().getCustomer().getCreatedBy() == null || 
+                !username.equals(shipment.getParcel().getCustomer().getCreatedBy().getUsername())) {
+                throw new ResourceNotFoundException("Shipment not found");
+            }
         }
 
         return toDto(shipment);
@@ -102,13 +113,11 @@ public class ShipmentServiceImpl implements ShipmentService {
 
     @Override
     public ShipmentDto updateShipmentLocation(Long id, String currentLocation) {
-        String username = CurrentUserUtil.getCurrentUsername();
+        if (!CurrentUserUtil.isAdmin()) {
+            throw new IllegalStateException("Only administrators can update shipments");
+        }
         Shipment shipment = shipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
-
-        if (shipment.getCreatedBy() == null || !username.equals(shipment.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Shipment not found");
-        }
 
         shipment.setCurrentLocation(currentLocation);
         return toDto(shipmentRepository.save(shipment));
@@ -116,13 +125,11 @@ public class ShipmentServiceImpl implements ShipmentService {
 
     @Override
     public ShipmentDto updateShipment(Long id, ShipmentDto shipmentDto) {
-        String username = CurrentUserUtil.getCurrentUsername();
+        if (!CurrentUserUtil.isAdmin()) {
+            throw new IllegalStateException("Only administrators can update shipments");
+        }
         Shipment shipment = shipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
-
-        if (shipment.getCreatedBy() == null || !username.equals(shipment.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Shipment not found");
-        }
 
         shipment.setCurrentLocation(shipmentDto.getCurrentLocation());
         shipment.setEstimatedDeliveryDate(shipmentDto.getEstimatedDeliveryDate());
@@ -137,13 +144,11 @@ public class ShipmentServiceImpl implements ShipmentService {
     @Transactional
     @Override
     public void deleteShipment(Long id) {
-        String username = CurrentUserUtil.getCurrentUsername();
+        if (!CurrentUserUtil.isAdmin()) {
+            throw new IllegalStateException("Only administrators can delete shipments");
+        }
         Shipment shipment = shipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
-
-        if (shipment.getCreatedBy() == null || !username.equals(shipment.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Shipment not found");
-        }
 
         trackingUpdateRepository.deleteByShipment_ShipmentId(id);
         shipmentRepository.delete(shipment);
@@ -151,9 +156,11 @@ public class ShipmentServiceImpl implements ShipmentService {
 
     @Override
     public ShipmentDto getShipmentByParcelId(Long parcelId) {
-        String username = CurrentUserUtil.getCurrentUsername();
         return shipmentRepository.findByParcel_ParcelId(parcelId)
-                .filter(s -> s.getCreatedBy() != null && username.equals(s.getCreatedBy().getUsername()))
+                .filter(s -> CurrentUserUtil.isAdmin() || 
+                             (s.getParcel() != null && s.getParcel().getCustomer() != null && 
+                              s.getParcel().getCustomer().getCreatedBy() != null && 
+                              CurrentUserUtil.getCurrentUsername().equals(s.getParcel().getCustomer().getCreatedBy().getUsername())))
                 .map(this::toDto)
                 .orElse(null);
     }

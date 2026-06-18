@@ -40,10 +40,19 @@ public class ParcelServiceImpl implements ParcelService {
         AppUser currentUser = appUserRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        Customer customer = customerRepository.findById(parcelDto.getCustomerId())
+        Long targetCustomerId = parcelDto.getCustomerId();
+        if (!CurrentUserUtil.isAdmin() && currentUser.getCustomer() != null) {
+            targetCustomerId = currentUser.getCustomer().getCustomerId();
+        }
+
+        if (targetCustomerId == null) {
+            throw new ResourceNotFoundException("Customer not specified or user has no profile");
+        }
+
+        Customer customer = customerRepository.findById(targetCustomerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
-        if (customer.getCreatedBy() == null || !username.equals(customer.getCreatedBy().getUsername())) {
+        if (!CurrentUserUtil.isAdmin() && (customer.getCreatedBy() == null || !username.equals(customer.getCreatedBy().getUsername()))) {
             throw new ResourceNotFoundException("Customer not found");
         }
 
@@ -61,6 +70,9 @@ public class ParcelServiceImpl implements ParcelService {
 
     @Override
     public List<ParcelDto> getAllParcels() {
+        if (CurrentUserUtil.isAdmin()) {
+            return parcelRepository.findAll().stream().map(this::toDto).toList();
+        }
         String username = CurrentUserUtil.getCurrentUsername();
         return parcelRepository.findByCreatedBy_Username(username)
                 .stream()
@@ -70,12 +82,14 @@ public class ParcelServiceImpl implements ParcelService {
 
     @Override
     public ParcelDto getParcelById(Long id) {
-        String username = CurrentUserUtil.getCurrentUsername();
         Parcel parcel = parcelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parcel not found"));
 
-        if (parcel.getCreatedBy() == null || !username.equals(parcel.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Parcel not found");
+        if (!CurrentUserUtil.isAdmin()) {
+            String username = CurrentUserUtil.getCurrentUsername();
+            if (parcel.getCreatedBy() == null || !username.equals(parcel.getCreatedBy().getUsername())) {
+                throw new ResourceNotFoundException("Parcel not found");
+            }
         }
 
         return toDto(parcel);
@@ -83,36 +97,44 @@ public class ParcelServiceImpl implements ParcelService {
 
     @Override
     public List<ParcelDto> getParcelsByCustomerId(Long customerId) {
-        String username = CurrentUserUtil.getCurrentUsername();
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
-        if (customer.getCreatedBy() == null || !username.equals(customer.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Customer not found");
+        if (!CurrentUserUtil.isAdmin()) {
+            String username = CurrentUserUtil.getCurrentUsername();
+            if (customer.getCreatedBy() == null || !username.equals(customer.getCreatedBy().getUsername())) {
+                throw new ResourceNotFoundException("Customer not found");
+            }
         }
 
         return parcelRepository.findByCustomer_CustomerId(customerId)
                 .stream()
-                .filter(p -> p.getCreatedBy() != null && username.equals(p.getCreatedBy().getUsername()))
+                .filter(p -> CurrentUserUtil.isAdmin() || 
+                             (p.getCreatedBy() != null && CurrentUserUtil.getCurrentUsername().equals(p.getCreatedBy().getUsername())))
                 .map(this::toDto)
                 .toList();
     }
 
     @Override
     public ParcelDto updateParcel(Long id, ParcelDto parcelDto) {
-        String username = CurrentUserUtil.getCurrentUsername();
         Parcel parcel = parcelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parcel not found"));
 
-        if (parcel.getCreatedBy() == null || !username.equals(parcel.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Parcel not found");
+        if (!CurrentUserUtil.isAdmin()) {
+            String username = CurrentUserUtil.getCurrentUsername();
+            if (parcel.getCreatedBy() == null || !username.equals(parcel.getCreatedBy().getUsername())) {
+                throw new ResourceNotFoundException("Parcel not found");
+            }
         }
 
         Customer customer = customerRepository.findById(parcelDto.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
-        if (customer.getCreatedBy() == null || !username.equals(customer.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Customer not found");
+        if (!CurrentUserUtil.isAdmin()) {
+            String username = CurrentUserUtil.getCurrentUsername();
+            if (customer.getCreatedBy() == null || !username.equals(customer.getCreatedBy().getUsername())) {
+                throw new ResourceNotFoundException("Customer not found");
+            }
         }
 
         parcel.setCustomer(customer);
@@ -128,12 +150,14 @@ public class ParcelServiceImpl implements ParcelService {
     @Override
     @Transactional
     public void deleteParcel(Long id) {
-        String username = CurrentUserUtil.getCurrentUsername();
         Parcel parcel = parcelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parcel not found"));
 
-        if (parcel.getCreatedBy() == null || !username.equals(parcel.getCreatedBy().getUsername())) {
-            throw new ResourceNotFoundException("Parcel not found");
+        if (!CurrentUserUtil.isAdmin()) {
+            String username = CurrentUserUtil.getCurrentUsername();
+            if (parcel.getCreatedBy() == null || !username.equals(parcel.getCreatedBy().getUsername())) {
+                throw new ResourceNotFoundException("Parcel not found");
+            }
         }
 
         shipmentRepository.findByParcel_ParcelId(id).ifPresent(shipmentRepository::delete);
