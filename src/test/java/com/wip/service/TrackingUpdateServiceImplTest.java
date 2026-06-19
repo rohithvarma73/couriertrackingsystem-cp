@@ -1,15 +1,19 @@
 package com.wip.service;
 
 import com.wip.dto.TrackingUpdateDto;
+import com.wip.entity.AppUser;
 import com.wip.entity.Shipment;
 import com.wip.entity.TrackingUpdate;
 import com.wip.exception.ResourceNotFoundException;
+import com.wip.repository.AppUserRepository;
 import com.wip.repository.ShipmentRepository;
 import com.wip.repository.TrackingUpdateRepository;
+import com.wip.security.CurrentUserUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
@@ -20,10 +24,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import org.junit.jupiter.api.Disabled;
-
 @ExtendWith(MockitoExtension.class)
-@Disabled("Tests outdated due to Phase 2 RBAC redesign")
 class TrackingUpdateServiceImplTest {
 
     @Mock
@@ -32,203 +33,252 @@ class TrackingUpdateServiceImplTest {
     @Mock
     private ShipmentRepository shipmentRepository;
 
+    @Mock
+    private AppUserRepository appUserRepository;
+
     @InjectMocks
     private TrackingUpdateServiceImpl trackingUpdateService;
 
     @Test
     void testAddTrackingUpdate() {
-        Long shipmentId = 1L;
+        try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
+            util.when(CurrentUserUtil::isAdmin).thenReturn(true);
+            util.when(CurrentUserUtil::getCurrentUsername).thenReturn("admin");
 
-        Shipment shipment = new Shipment();
-        shipment.setShipmentId(shipmentId);
-        shipment.setTrackingNumber("TRK123");
+            AppUser adminUser = new AppUser();
+            adminUser.setUsername("admin");
+            when(appUserRepository.findByUsername("admin")).thenReturn(Optional.of(adminUser));
 
-        TrackingUpdateDto inputDto = new TrackingUpdateDto();
-        inputDto.setDeliveryStatus("In Transit");
-        inputDto.setLocation("Hyderabad");
-        inputDto.setRemarks("Reached hub");
+            Long shipmentId = 1L;
 
-        TrackingUpdate savedUpdate = new TrackingUpdate();
-        savedUpdate.setUpdateId(10L);
-        savedUpdate.setShipment(shipment);
-        savedUpdate.setDeliveryStatus("In Transit");
-        savedUpdate.setLocation("Hyderabad");
-        savedUpdate.setRemarks("Reached hub");
-        savedUpdate.setCreatedAt(LocalDateTime.now());
+            Shipment shipment = new Shipment();
+            shipment.setShipmentId(shipmentId);
+            shipment.setTrackingNumber("TRK123");
 
-        when(shipmentRepository.findById(shipmentId)).thenReturn(Optional.of(shipment));
-        when(shipmentRepository.save(shipment)).thenReturn(shipment);
-        when(trackingUpdateRepository.save(any(TrackingUpdate.class))).thenReturn(savedUpdate);
+            TrackingUpdateDto inputDto = new TrackingUpdateDto();
+            inputDto.setDeliveryStatus("In Transit");
+            inputDto.setLocation("Hyderabad");
+            inputDto.setRemarks("Reached hub");
 
-        TrackingUpdateDto result = trackingUpdateService.addTrackingUpdate(shipmentId, inputDto);
+            TrackingUpdate savedUpdate = new TrackingUpdate();
+            savedUpdate.setUpdateId(10L);
+            savedUpdate.setShipment(shipment);
+            savedUpdate.setDeliveryStatus("In Transit");
+            savedUpdate.setLocation("Hyderabad");
+            savedUpdate.setRemarks("Reached hub");
+            savedUpdate.setCreatedAt(LocalDateTime.now());
 
-        assertNotNull(result);
-        assertEquals(10L, result.getUpdateId());
-        assertEquals(shipmentId, result.getShipmentId());
-        assertEquals("TRK123", result.getTrackingNumber());
-        assertEquals("In Transit", result.getDeliveryStatus());
-        assertEquals("Hyderabad", result.getLocation());
-        assertEquals("Reached hub", result.getRemarks());
+            when(shipmentRepository.findById(shipmentId)).thenReturn(Optional.of(shipment));
+            when(shipmentRepository.save(shipment)).thenReturn(shipment);
+            when(trackingUpdateRepository.save(any(TrackingUpdate.class))).thenReturn(savedUpdate);
 
-        verify(shipmentRepository).findById(shipmentId);
-        verify(shipmentRepository).save(shipment);
-        verify(trackingUpdateRepository).save(any(TrackingUpdate.class));
+            TrackingUpdateDto result = trackingUpdateService.addTrackingUpdate(shipmentId, inputDto);
+
+            assertNotNull(result);
+            assertEquals(10L, result.getUpdateId());
+            assertEquals(shipmentId, result.getShipmentId());
+            assertEquals("TRK123", result.getTrackingNumber());
+            assertEquals("In Transit", result.getDeliveryStatus());
+            assertEquals("Hyderabad", result.getLocation());
+            assertEquals("Reached hub", result.getRemarks());
+
+            verify(shipmentRepository).findById(shipmentId);
+            verify(shipmentRepository).save(shipment);
+            verify(trackingUpdateRepository).save(any(TrackingUpdate.class));
+        }
     }
 
     @Test
     void testAddTrackingUpdateShipmentNotFound() {
-        Long shipmentId = 1L;
-        TrackingUpdateDto inputDto = new TrackingUpdateDto();
+        try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
+            util.when(CurrentUserUtil::isAdmin).thenReturn(true);
+            util.when(CurrentUserUtil::getCurrentUsername).thenReturn("admin");
 
-        when(shipmentRepository.findById(shipmentId)).thenReturn(Optional.empty());
+            AppUser adminUser = new AppUser();
+            adminUser.setUsername("admin");
+            when(appUserRepository.findByUsername("admin")).thenReturn(Optional.of(adminUser));
 
-        assertThrows(ResourceNotFoundException.class,
-                () -> trackingUpdateService.addTrackingUpdate(shipmentId, inputDto));
+            Long shipmentId = 1L;
+            TrackingUpdateDto inputDto = new TrackingUpdateDto();
 
-        verify(shipmentRepository).findById(shipmentId);
-        verify(trackingUpdateRepository, never()).save(any());
-        verify(shipmentRepository, never()).save(any());
+            when(shipmentRepository.findById(shipmentId)).thenReturn(Optional.empty());
+
+            assertThrows(ResourceNotFoundException.class,
+                    () -> trackingUpdateService.addTrackingUpdate(shipmentId, inputDto));
+
+            verify(shipmentRepository).findById(shipmentId);
+            verify(trackingUpdateRepository, never()).save(any());
+            verify(shipmentRepository, never()).save(any());
+        }
     }
 
     @Test
     void testGetTrackingUpdatesByShipmentId() {
-        Long shipmentId = 1L;
+        try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
+            util.when(CurrentUserUtil::isAdmin).thenReturn(true);
 
-        Shipment shipment = new Shipment();
-        shipment.setShipmentId(shipmentId);
-        shipment.setTrackingNumber("TRK123");
+            Long shipmentId = 1L;
 
-        TrackingUpdate update1 = new TrackingUpdate();
-        update1.setUpdateId(1L);
-        update1.setShipment(shipment);
-        update1.setDeliveryStatus("Picked");
-        update1.setLocation("Chennai");
-        update1.setRemarks("Package picked");
-        update1.setCreatedAt(LocalDateTime.now());
+            Shipment shipment = new Shipment();
+            shipment.setShipmentId(shipmentId);
+            shipment.setTrackingNumber("TRK123");
 
-        TrackingUpdate update2 = new TrackingUpdate();
-        update2.setUpdateId(2L);
-        update2.setShipment(shipment);
-        update2.setDeliveryStatus("In Transit");
-        update2.setLocation("Hyderabad");
-        update2.setRemarks("Reached hub");
-        update2.setCreatedAt(LocalDateTime.now());
+            TrackingUpdate update1 = new TrackingUpdate();
+            update1.setUpdateId(1L);
+            update1.setShipment(shipment);
+            update1.setDeliveryStatus("Picked");
+            update1.setLocation("Chennai");
+            update1.setRemarks("Package picked");
+            update1.setCreatedAt(LocalDateTime.now());
 
-        when(shipmentRepository.findById(shipmentId)).thenReturn(Optional.of(shipment));
-        when(trackingUpdateRepository.findByShipment_ShipmentIdOrderByCreatedAtAsc(shipmentId))
-                .thenReturn(List.of(update1, update2));
+            TrackingUpdate update2 = new TrackingUpdate();
+            update2.setUpdateId(2L);
+            update2.setShipment(shipment);
+            update2.setDeliveryStatus("In Transit");
+            update2.setLocation("Hyderabad");
+            update2.setRemarks("Reached hub");
+            update2.setCreatedAt(LocalDateTime.now());
 
-        List<TrackingUpdateDto> result = trackingUpdateService.getTrackingUpdatesByShipmentId(shipmentId);
+            when(shipmentRepository.findById(shipmentId)).thenReturn(Optional.of(shipment));
+            when(trackingUpdateRepository.findByShipment_ShipmentIdOrderByCreatedAtAsc(shipmentId))
+                    .thenReturn(List.of(update1, update2));
 
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertEquals("Picked", result.get(0).getDeliveryStatus());
-        assertEquals("In Transit", result.get(1).getDeliveryStatus());
+            List<TrackingUpdateDto> result = trackingUpdateService.getTrackingUpdatesByShipmentId(shipmentId);
 
-        verify(shipmentRepository).findById(shipmentId);
-        verify(trackingUpdateRepository).findByShipment_ShipmentIdOrderByCreatedAtAsc(shipmentId);
+            assertNotNull(result);
+            assertEquals(2, result.size());
+            assertEquals("Picked", result.get(0).getDeliveryStatus());
+            assertEquals("In Transit", result.get(1).getDeliveryStatus());
+
+            verify(shipmentRepository).findById(shipmentId);
+            verify(trackingUpdateRepository).findByShipment_ShipmentIdOrderByCreatedAtAsc(shipmentId);
+        }
     }
 
     @Test
     void testGetTrackingUpdatesByShipmentIdEmpty() {
-        Long shipmentId = 1L;
+        try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
+            util.when(CurrentUserUtil::isAdmin).thenReturn(true);
 
-        Shipment shipment = new Shipment();
-        shipment.setShipmentId(shipmentId);
+            Long shipmentId = 1L;
 
-        when(shipmentRepository.findById(shipmentId)).thenReturn(Optional.of(shipment));
-        when(trackingUpdateRepository.findByShipment_ShipmentIdOrderByCreatedAtAsc(shipmentId))
-                .thenReturn(Collections.emptyList());
+            Shipment shipment = new Shipment();
+            shipment.setShipmentId(shipmentId);
 
-        List<TrackingUpdateDto> result = trackingUpdateService.getTrackingUpdatesByShipmentId(shipmentId);
+            when(shipmentRepository.findById(shipmentId)).thenReturn(Optional.of(shipment));
+            when(trackingUpdateRepository.findByShipment_ShipmentIdOrderByCreatedAtAsc(shipmentId))
+                    .thenReturn(Collections.emptyList());
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
+            List<TrackingUpdateDto> result = trackingUpdateService.getTrackingUpdatesByShipmentId(shipmentId);
 
-        verify(shipmentRepository).findById(shipmentId);
-        verify(trackingUpdateRepository).findByShipment_ShipmentIdOrderByCreatedAtAsc(shipmentId);
+            assertNotNull(result);
+            assertTrue(result.isEmpty());
+
+            verify(shipmentRepository).findById(shipmentId);
+            verify(trackingUpdateRepository).findByShipment_ShipmentIdOrderByCreatedAtAsc(shipmentId);
+        }
     }
 
     @Test
     void testGetTrackingUpdatesByShipmentIdShipmentNotFound() {
-        Long shipmentId = 1L;
+        try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
+            util.when(CurrentUserUtil::isAdmin).thenReturn(true);
 
-        when(shipmentRepository.findById(shipmentId)).thenReturn(Optional.empty());
+            Long shipmentId = 1L;
 
-        assertThrows(ResourceNotFoundException.class,
-                () -> trackingUpdateService.getTrackingUpdatesByShipmentId(shipmentId));
+            when(shipmentRepository.findById(shipmentId)).thenReturn(Optional.empty());
 
-        verify(shipmentRepository).findById(shipmentId);
-        verify(trackingUpdateRepository, never())
-                .findByShipment_ShipmentIdOrderByCreatedAtAsc(anyLong());
+            assertThrows(ResourceNotFoundException.class,
+                    () -> trackingUpdateService.getTrackingUpdatesByShipmentId(shipmentId));
+
+            verify(shipmentRepository).findById(shipmentId);
+            verify(trackingUpdateRepository, never())
+                    .findByShipment_ShipmentIdOrderByCreatedAtAsc(anyLong());
+        }
     }
 
     @Test
     void testGetTrackingUpdateById() {
-        Long updateId = 1L;
+        try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
+            util.when(CurrentUserUtil::isAdmin).thenReturn(true);
 
-        Shipment shipment = new Shipment();
-        shipment.setShipmentId(100L);
-        shipment.setTrackingNumber("TRK123");
+            Long updateId = 1L;
 
-        TrackingUpdate update = new TrackingUpdate();
-        update.setUpdateId(updateId);
-        update.setShipment(shipment);
-        update.setDeliveryStatus("Delivered");
-        update.setLocation("Bangalore");
-        update.setRemarks("Delivered successfully");
-        update.setCreatedAt(LocalDateTime.now());
+            Shipment shipment = new Shipment();
+            shipment.setShipmentId(100L);
+            shipment.setTrackingNumber("TRK123");
 
-        when(trackingUpdateRepository.findById(updateId)).thenReturn(Optional.of(update));
+            TrackingUpdate update = new TrackingUpdate();
+            update.setUpdateId(updateId);
+            update.setShipment(shipment);
+            update.setDeliveryStatus("Delivered");
+            update.setLocation("Bangalore");
+            update.setRemarks("Delivered successfully");
+            update.setCreatedAt(LocalDateTime.now());
 
-        TrackingUpdateDto result = trackingUpdateService.getTrackingUpdateById(updateId);
+            when(trackingUpdateRepository.findById(updateId)).thenReturn(Optional.of(update));
 
-        assertNotNull(result);
-        assertEquals(updateId, result.getUpdateId());
-        assertEquals(100L, result.getShipmentId());
-        assertEquals("TRK123", result.getTrackingNumber());
-        assertEquals("Delivered", result.getDeliveryStatus());
+            TrackingUpdateDto result = trackingUpdateService.getTrackingUpdateById(updateId);
 
-        verify(trackingUpdateRepository).findById(updateId);
+            assertNotNull(result);
+            assertEquals(updateId, result.getUpdateId());
+            assertEquals(100L, result.getShipmentId());
+            assertEquals("TRK123", result.getTrackingNumber());
+            assertEquals("Delivered", result.getDeliveryStatus());
+
+            verify(trackingUpdateRepository).findById(updateId);
+        }
     }
 
     @Test
     void testGetTrackingUpdateByIdNotFound() {
-        Long updateId = 1L;
+        try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
+            util.when(CurrentUserUtil::isAdmin).thenReturn(true);
 
-        when(trackingUpdateRepository.findById(updateId)).thenReturn(Optional.empty());
+            Long updateId = 1L;
 
-        assertThrows(ResourceNotFoundException.class,
-                () -> trackingUpdateService.getTrackingUpdateById(updateId));
+            when(trackingUpdateRepository.findById(updateId)).thenReturn(Optional.empty());
 
-        verify(trackingUpdateRepository).findById(updateId);
+            assertThrows(ResourceNotFoundException.class,
+                    () -> trackingUpdateService.getTrackingUpdateById(updateId));
+
+            verify(trackingUpdateRepository).findById(updateId);
+        }
     }
 
     @Test
     void testDeleteTrackingUpdate() {
-        Long updateId = 1L;
+        try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
+            util.when(CurrentUserUtil::isAdmin).thenReturn(true);
 
-        TrackingUpdate update = new TrackingUpdate();
-        update.setUpdateId(updateId);
+            Long updateId = 1L;
 
-        when(trackingUpdateRepository.findById(updateId)).thenReturn(Optional.of(update));
+            TrackingUpdate update = new TrackingUpdate();
+            update.setUpdateId(updateId);
 
-        trackingUpdateService.deleteTrackingUpdate(updateId);
+            when(trackingUpdateRepository.findById(updateId)).thenReturn(Optional.of(update));
 
-        verify(trackingUpdateRepository).findById(updateId);
-        verify(trackingUpdateRepository).delete(update);
+            trackingUpdateService.deleteTrackingUpdate(updateId);
+
+            verify(trackingUpdateRepository).findById(updateId);
+            verify(trackingUpdateRepository).delete(update);
+        }
     }
 
     @Test
     void testDeleteTrackingUpdateNotFound() {
-        Long updateId = 1L;
+        try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
+            util.when(CurrentUserUtil::isAdmin).thenReturn(true);
 
-        when(trackingUpdateRepository.findById(updateId)).thenReturn(Optional.empty());
+            Long updateId = 1L;
 
-        assertThrows(ResourceNotFoundException.class,
-                () -> trackingUpdateService.deleteTrackingUpdate(updateId));
+            when(trackingUpdateRepository.findById(updateId)).thenReturn(Optional.empty());
 
-        verify(trackingUpdateRepository).findById(updateId);
-        verify(trackingUpdateRepository, never()).delete(any());
+            assertThrows(ResourceNotFoundException.class,
+                    () -> trackingUpdateService.deleteTrackingUpdate(updateId));
+
+            verify(trackingUpdateRepository).findById(updateId);
+            verify(trackingUpdateRepository, never()).delete(any());
+        }
     }
 }
