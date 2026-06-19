@@ -2,6 +2,7 @@ package com.wip.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class RegisterDto {
@@ -20,10 +21,11 @@ public class RegisterDto {
     private String fullName;
 
     @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
+    @Email(message = "Please enter a valid email address (e.g. name@example.com)")
     private String email;
 
-    @NotBlank(message = "Phone is required")
+    @NotBlank(message = "Phone number is required")
+    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be exactly 10 digits (numbers only)")
     private String phone;
 
     @NotBlank(message = "Address is required")

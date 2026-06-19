@@ -754,6 +754,7 @@ main {
    ============================================= */
 .field-error { font-size: 0.8rem; color: var(--danger); margin-top: var(--space-1); display: block; }
 .text-danger  { color: var(--danger); font-size: 0.85rem; display: block; margin-top: var(--space-1); }
+.form-hint    { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem; display: block; }
 
 /* Tracking number display */
 .tracking-number {

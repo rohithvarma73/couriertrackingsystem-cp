@@ -109,6 +109,15 @@ public class ParcelUiController {
                                @Valid @ModelAttribute("parcelDto") ParcelDto parcelDto,
                                BindingResult bindingResult,
                                Model model) {
+        // Re-enforce customer ID from auth for non-admin users (hidden field may be missing)
+        if (!com.wip.security.CurrentUserUtil.isAdmin()) {
+            org.springframework.security.core.Authentication auth =
+                    org.springframework.security.core.context.SecurityContextHolder
+                            .getContext().getAuthentication();
+            if (auth != null && auth.getPrincipal() instanceof com.wip.security.CustomUserDetails details) {
+                parcelDto.setCustomerId(details.getCustomerId());
+            }
+        }
         if (bindingResult.hasErrors()) {
             model.addAttribute("today", LocalDate.now());
             return "parcel/form";

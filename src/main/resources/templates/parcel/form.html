@@ -42,7 +42,8 @@
                     <div class="form-group" sec:authorize="hasRole('ADMIN')">
                         <label class="form-label">Customer ID</label>
                         <input type="number" class="form-input" th:field="*{customerId}"
-                               placeholder="Enter customer ID" required>
+                               placeholder="Enter customer ID" min="1" step="1" required>
+                        <span class="form-hint">Must be a valid numeric customer ID</span>
                         <span th:if="${#fields.hasErrors('customerId')}" th:errors="*{customerId}" class="text-danger"></span>
                     </div>
                     <!-- Hidden for regular users (server-side enforced) -->
@@ -64,7 +65,9 @@
                             existing parcels may have a past date (don't break edit flow).
                         -->
                         <input type="date" class="form-input" th:field="*{bookingDate}"
-                               th:attr="min=${parcelDto.parcelId == null ? today : null}">
+                               th:attr="min=${parcelDto.parcelId == null ? today : null}"
+                               required>
+                        <span th:if="${#fields.hasErrors('bookingDate')}" th:errors="*{bookingDate}" class="text-danger"></span>
                     </div>
 
                     <div class="form-group full-width">

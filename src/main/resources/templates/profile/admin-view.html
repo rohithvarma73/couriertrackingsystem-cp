@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Profile — Nexus Logistics</title>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+</head>
+<body>
+    <th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
+    <main class="container">
+        <div class="page-header">
+            <div class="page-header-left">
+                <h2>Admin Account</h2>
+                <p>You are signed in as an administrator</p>
+            </div>
+            <div class="page-actions">
+                <a th:href="@{/dashboard}" class="btn btn-secondary btn-sm">
+                    <i class="fa-solid fa-arrow-left"></i> Back to dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="form-card" style="max-width: 520px;">
+            <div style="display:flex; align-items:center; gap:1.2rem; margin-bottom:1.5rem;">
+                <div style="width:56px; height:56px; border-radius:50%; background:var(--purple);
+                            display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <i class="fa-solid fa-user-shield" style="color:#fff; font-size:1.4rem;"></i>
+                </div>
+                <div>
+                    <div class="text-mono font-semibold" th:text="${adminUsername}" style="font-size:1.1rem;"></div>
+                    <span class="badge" style="background:var(--orange); color:#fff; margin-top:.3rem;">Administrator</span>
+                </div>
+            </div>
+
+            <div class="error-box" style="background:#f0f4ff; border-color:#c7d2fe; color:#3730a3;">
+                <span class="error-box-icon"><i class="fa-solid fa-circle-info" style="color:#4f46e5;"></i></span>
+                <div class="error-box-body">
+                    <div class="error-box-title" style="color:#3730a3;">Admin accounts do not have a customer profile</div>
+                    <div class="error-box-message" style="color:#4338ca;">
+                        Administrators manage the system. Customer profiles are created
+                        when users self-register. Use the Customers section to manage customer records.
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions" style="margin-top:1.5rem;">
+                <a th:href="@{/customers}" class="btn btn-primary">
+                    <i class="fa-solid fa-users"></i> View all customers
+                </a>
+                <a th:href="@{/dashboard}" class="btn btn-secondary">Dashboard</a>
+            </div>
+        </div>
+    </main>
+    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>

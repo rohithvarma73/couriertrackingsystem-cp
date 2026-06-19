@@ -3,14 +3,12 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Parcels – Nexus Logistics</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <title>Parcels — Nexus Logistics</title>
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </head>
 <body>
 
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+<th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
 
 <main class="container mt-6 mb-8">
 
@@ -113,8 +111,7 @@
 
 </main>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
-<div th:replace="~{fragments/scripts :: scripts}"></div>
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
 
 </body>
 </html>

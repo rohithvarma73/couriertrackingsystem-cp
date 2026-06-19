@@ -3,6 +3,7 @@ package com.wip.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 public class CustomerDto {
 
@@ -13,16 +14,17 @@ public class CustomerDto {
     @NotBlank(message = "Customer name is required")
     private String customerName;
 
-    @Schema(example = "rohitvarma@gmail.com", description = "Customer email")
+    @Schema(example = "rohith@example.com", description = "Customer email")
     @NotBlank(message = "Email is required")
-    @Email(message = "Email should be valid")
+    @Email(message = "Please enter a valid email address (e.g. name@example.com)")
     private String email;
 
-    @Schema(example = "9999678901", description = "Customer phone")
-    @NotBlank(message = "Phone is required")
+    @Schema(example = "9876543210", description = "10-digit mobile number")
+    @NotBlank(message = "Phone number is required")
+    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be exactly 10 digits (numbers only)")
     private String phone;
 
-    @Schema(example = "Chennai", description = "Customer address")
+    @Schema(example = "Chennai, Tamil Nadu", description = "Customer address")
     @NotBlank(message = "Address is required")
     private String address;
 

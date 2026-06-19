@@ -1,13 +1,9 @@
-package com.wip.couriertrackingsystem;
+package com.wip;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication(scanBasePackages = "com.wip")
-@EntityScan(basePackages = "com.wip.entity")
-@EnableJpaRepositories(basePackages = "com.wip.repository")
+@SpringBootApplication
 public class CouriertrackingsystemApplication {
     public static void main(String[] args) {
         SpringApplication.run(CouriertrackingsystemApplication.class, args);

@@ -63,8 +63,13 @@
                     </div>
                     <div class="form-group">
                         <label for="phone" class="form-label">Phone number</label>
-                        <input type="text" id="phone" th:field="*{phone}" class="form-input"
-                               placeholder="e.g. +91 98765 43210" required>
+                        <input type="tel" id="phone" th:field="*{phone}" class="form-input"
+                               placeholder="e.g. 9876543210"
+                               pattern="[0-9]{10}"
+                               maxlength="10"
+                               title="Enter exactly 10 digits, no spaces or dashes"
+                               required>
+                        <span class="form-hint">10 digits only — no spaces, dashes, or country code</span>
                         <span th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></span>
                     </div>
                     <div class="form-group full-width">

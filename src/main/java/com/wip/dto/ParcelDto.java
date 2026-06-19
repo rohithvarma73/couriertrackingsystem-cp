@@ -3,98 +3,106 @@ package com.wip.dto;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class ParcelDto {
     private Long parcelId;
+
+    /**
+     * Required for admin when creating a parcel.
+     * For regular users, this is always enforced server-side from the auth context.
+     */
+    @NotNull(message = "Customer ID is required")
+    @Positive(message = "Customer ID must be a positive number")
     private Long customerId;
+
     private String customerName;
     private String receiverPhone;
-    @NotNull(message = "Weight is required")
-    @DecimalMin(value = "0.1", message = "Weight must be greater than 0")
-    private BigDecimal weight;
-    
-    @NotBlank(message = "Source address is required")
-    private String sourceAddress;
-    
-    @NotBlank(message = "Destination address is required")
-    private String destinationAddress;
-    
-    private LocalDate bookingDate;
 
+    @NotNull(message = "Weight is required")
+    @DecimalMin(value = "0.1", message = "Weight must be at least 0.1 kg")
+    private BigDecimal weight;
+
+    @NotBlank(message = "Pickup address is required")
+    private String sourceAddress;
+
+    @NotBlank(message = "Delivery address is required")
+    private String destinationAddress;
+
+    @NotNull(message = "Booking date is required")
+    private LocalDate bookingDate;
 
     private Long shipmentId;
     private boolean shipmentAvailable;
 
-    
-
     public Long getParcelId() {
-		return parcelId;
-	}
+        return parcelId;
+    }
 
-	public void setParcelId(Long parcelId) {
-		this.parcelId = parcelId;
-	}
+    public void setParcelId(Long parcelId) {
+        this.parcelId = parcelId;
+    }
 
-	public Long getCustomerId() {
-		return customerId;
-	}
+    public Long getCustomerId() {
+        return customerId;
+    }
 
-	public void setCustomerId(Long customerId) {
-		this.customerId = customerId;
-	}
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
 
-	public String getCustomerName() {
-		return customerName;
-	}
+    public String getCustomerName() {
+        return customerName;
+    }
 
-	public void setCustomerName(String customerName) {
-		this.customerName = customerName;
-	}
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
 
-	public String getReceiverPhone() {
-		return receiverPhone;
-	}
+    public String getReceiverPhone() {
+        return receiverPhone;
+    }
 
-	public void setReceiverPhone(String receiverPhone) {
-		this.receiverPhone = receiverPhone;
-	}
+    public void setReceiverPhone(String receiverPhone) {
+        this.receiverPhone = receiverPhone;
+    }
 
-	public BigDecimal getWeight() {
-		return weight;
-	}
+    public BigDecimal getWeight() {
+        return weight;
+    }
 
-	public void setWeight(BigDecimal weight) {
-		this.weight = weight;
-	}
+    public void setWeight(BigDecimal weight) {
+        this.weight = weight;
+    }
 
-	public String getSourceAddress() {
-		return sourceAddress;
-	}
+    public String getSourceAddress() {
+        return sourceAddress;
+    }
 
-	public void setSourceAddress(String sourceAddress) {
-		this.sourceAddress = sourceAddress;
-	}
+    public void setSourceAddress(String sourceAddress) {
+        this.sourceAddress = sourceAddress;
+    }
 
-	public String getDestinationAddress() {
-		return destinationAddress;
-	}
+    public String getDestinationAddress() {
+        return destinationAddress;
+    }
 
-	public void setDestinationAddress(String destinationAddress) {
-		this.destinationAddress = destinationAddress;
-	}
+    public void setDestinationAddress(String destinationAddress) {
+        this.destinationAddress = destinationAddress;
+    }
 
-	public LocalDate getBookingDate() {
-		return bookingDate;
-	}
+    public LocalDate getBookingDate() {
+        return bookingDate;
+    }
 
-	public void setBookingDate(LocalDate bookingDate) {
-		this.bookingDate = bookingDate;
-	}
+    public void setBookingDate(LocalDate bookingDate) {
+        this.bookingDate = bookingDate;
+    }
 
-	public Long getShipmentId() {
+    public Long getShipmentId() {
         return shipmentId;
     }
 
