@@ -851,45 +851,149 @@ main {
 .feature-card p  { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.65; }
 
 /* =============================================
-   AUTH PAGES
+   AUTH PAGES - SPLIT LAYOUT
    ============================================= */
-.auth-layout {
+.auth-split-layout {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+.auth-split-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-8);
+    background: var(--bg-surface);
+}
+.auth-split-right {
+    flex: 1;
+    display: none;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+@media (min-width: 900px) {
+    .auth-split-right {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: var(--space-12);
+    }
+}
+.auth-split-right::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(10, 20, 40, 0.2), rgba(10, 20, 40, 0.8));
+}
+.auth-split-right-content {
+    position: relative;
+    color: white;
+    z-index: 1;
+    max-width: 480px;
+}
+.auth-split-right-content h2 {
+    font-size: 2.5rem;
+    color: white;
+    margin-bottom: var(--space-2);
+}
+.auth-split-right-content p {
+    font-size: 1.1rem;
+    margin-bottom: var(--space-6);
+    color: rgba(255, 255, 255, 0.9);
+}
+.auth-split-right-list {
+    list-style: none;
+    font-size: 1.1rem;
+}
+.auth-split-right-list li {
+    margin-bottom: var(--space-3);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+.auth-split-right-list li::before {
+    content: '•';
+    color: var(--accent);
+    font-size: 1.5rem;
+}
+
+.auth-form-wrapper {
+    width: 100%;
+    max-width: 400px;
+}
+.auth-split-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-8);
+    font-size: 1.5rem;
+    font-family: var(--font-display);
+    color: var(--purple-text);
+    font-weight: 700;
+}
+.auth-split-logo-icon {
+    width: 36px; height: 36px;
+    background: var(--purple);
+    color: var(--accent);
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: var(--space-6);
+}
+.auth-header h1 {
+    font-size: 1.5rem;
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+    font-weight: 600;
+}
+
+.social-login-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: calc(100vh - 65px);
-    padding: var(--space-8) 0;
-}
-.auth-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xl);
-    padding: var(--space-8);
+    gap: var(--space-3);
     width: 100%;
-    max-width: 440px;
-    box-shadow: var(--shadow-lg);
-}
-.auth-logo {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: var(--space-8);
-}
-.auth-logo-mark {
-    width: 52px; height: 52px;
-    background: var(--purple);
-    border-radius: var(--radius-lg);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--accent); font-size: 1.5rem;
+    padding: 0.65rem var(--space-4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
     margin-bottom: var(--space-3);
+    cursor: pointer;
+    transition: background var(--t-fast);
 }
-.auth-logo h1 {
-    font-size: 1.35rem;
-    font-family: var(--font-display);
-    font-weight: 400;
-    color: var(--purple-text);
+.social-login-btn:hover {
+    background: var(--bg-elevated);
 }
-.auth-logo p { color: var(--text-secondary); font-size: 0.875rem; margin-top: var(--space-1); }
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: var(--space-6) 0;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border);
+}
+.divider:not(:empty)::before { margin-right: .5em; }
+.divider:not(:empty)::after { margin-left: .5em; }
+
 
 /* =============================================
    ERROR PAGES

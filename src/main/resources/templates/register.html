@@ -6,89 +6,94 @@
     <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 </head>
 <body>
-    <th:block th:replace="~{fragments/navbar :: navbar}"></th:block>
-
-    <div class="auth-layout" style="align-items: flex-start; padding-top: 3rem;">
-        <div class="auth-card" style="max-width: 560px;">
-            <div class="auth-logo">
-                <div class="auth-logo-mark"><i class="fa-solid fa-cube"></i></div>
-                <h1>Create your account</h1>
-                <p>Fill in your details to get started</p>
-            </div>
-
-            <div th:if="${param.success}" class="alert alert-success mb-4">
-                <i class="fa-solid fa-check-circle"></i>
-                Account created! <a th:href="@{/login}" style="font-weight:600; color:inherit;">Sign in now</a>
-            </div>
-
-            <form th:action="@{/register}" th:object="${registerDto}" method="post">
-
-                <p class="section-label">Account details</p>
-
-                <div class="form-grid mb-6">
-                    <div class="form-group">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" id="username" th:field="*{username}" class="form-input"
-                               placeholder="Choose a username" required>
-                        <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" id="email" th:field="*{email}" class="form-input"
-                               placeholder="your@email.com" required>
-                        <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" id="password" th:field="*{password}" class="form-input"
-                               placeholder="At least 6 characters" required>
-                        <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="confirmPassword" class="form-label">Confirm password</label>
-                        <input type="password" id="confirmPassword" th:field="*{confirmPassword}" class="form-input"
-                               placeholder="Repeat your password" required>
-                        <span th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="text-danger"></span>
-                    </div>
+    <div class="auth-split-layout">
+        <div class="auth-split-left" style="overflow-y: auto; padding-top: 4rem; padding-bottom: 4rem;">
+            <div class="auth-form-wrapper" style="max-width: 500px;">
+                <div class="auth-split-logo">
+                    <div class="auth-split-logo-icon"><i class="fa-solid fa-cube"></i></div>
+                    Nexus
                 </div>
 
-                <p class="section-label">Personal details</p>
-
-                <div class="form-grid mb-6">
-                    <div class="form-group">
-                        <label for="fullName" class="form-label">Full name</label>
-                        <input type="text" id="fullName" th:field="*{fullName}" class="form-input"
-                               placeholder="e.g. John Doe" required>
-                        <span th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone" class="form-label">Phone number</label>
-                        <input type="tel" id="phone" th:field="*{phone}" class="form-input"
-                               placeholder="e.g. 9876543210"
-                               pattern="[0-9]{10}"
-                               maxlength="10"
-                               title="Enter exactly 10 digits, no spaces or dashes"
-                               required>
-                        <span class="form-hint">10 digits only — no spaces, dashes, or country code</span>
-                        <span th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></span>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="address" class="form-label">Address</label>
-                        <textarea id="address" th:field="*{address}" class="form-textarea" rows="2"
-                                  placeholder="Your full address" required></textarea>
-                        <span th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="text-danger"></span>
-                    </div>
+                <div class="auth-header">
+                    <h1>Create your account</h1>
+                    <p class="text-secondary text-sm">Fill in your details to get started</p>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-full">
-                    <i class="fa-solid fa-user-plus"></i> Create account
-                </button>
-            </form>
+                <div th:if="${param.success}" class="alert alert-success mb-4">
+                    <i class="fa-solid fa-check-circle"></i>
+                    Account created! <a th:href="@{/login}" style="font-weight:600; color:inherit; text-decoration: underline;">Sign in now</a>
+                </div>
 
-            <p class="text-center text-sm text-secondary mt-6">
-                Already have an account?
-                <a th:href="@{/login}" style="font-weight:600;">Sign in</a>
-            </p>
+                <form th:action="@{/register}" th:object="${registerDto}" method="post">
+                    
+                    <div class="form-grid mb-6">
+                        <div class="form-group">
+                            <input type="text" id="username" th:field="*{username}" class="form-input"
+                                   placeholder="Username*" required>
+                            <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" th:field="*{email}" class="form-input"
+                                   placeholder="Email address*" required>
+                            <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="password" th:field="*{password}" class="form-input"
+                                   placeholder="Password*" required>
+                            <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="confirmPassword" th:field="*{confirmPassword}" class="form-input"
+                                   placeholder="Confirm Password*" required>
+                            <span th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-grid mb-6">
+                        <div class="form-group full-width">
+                            <input type="text" id="fullName" th:field="*{fullName}" class="form-input"
+                                   placeholder="Full name*" required>
+                            <span th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-danger"></span>
+                        </div>
+                        <div class="form-group full-width">
+                            <input type="tel" id="phone" th:field="*{phone}" class="form-input"
+                                   placeholder="Phone number (10 digits)*"
+                                   pattern="[0-9]{10}" maxlength="10" required>
+                            <span th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></span>
+                        </div>
+                        <div class="form-group full-width">
+                            <textarea id="address" th:field="*{address}" class="form-textarea" rows="2"
+                                      placeholder="Full Address*" required></textarea>
+                            <span th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full" style="padding: 0.8rem; background: #81b1f1; border: none; color: white; font-weight: 600; border-radius: 6px; font-size: 1rem;">
+                        Sign Up
+                    </button>
+                </form>
+
+
+                <p class="text-center text-sm text-secondary mt-6">
+                    Already have an account?
+                    <a th:href="@{/login}" class="font-semibold" style="color: #2b70d4; text-decoration: underline;">Sign In</a>
+                </p>
+
+                <div class="text-center text-xs text-muted mt-8">
+                    © 2009-2026 - Nexus Solutions. All Rights Reserved. | <a href="#" class="text-muted" style="text-decoration: underline;">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+        <div class="auth-split-right" style="background-image: url('/images/auth-bg.png');">
+            <div class="auth-split-right-content">
+                <h2 style="font-family: var(--font-sans); font-weight: 700;">Join the Nexus Network.</h2>
+                <p>Register today to streamline your logistics</p>
+                <ul class="auth-split-right-list">
+                    <li>1M+ parcels delivered successfully</li>
+                    <li>24/7 Real-time shipment tracking</li>
+                    <li>99.9% customer satisfaction rate</li>
+                </ul>
+            </div>
         </div>
     </div>
 </body>
