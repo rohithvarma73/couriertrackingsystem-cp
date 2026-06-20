@@ -13,6 +13,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 
+/**
+ * ShipmentUiController Component.
+ * 
+ * Handles operations and data related to ShipmentUiController.
+ */
 @Controller
 @RequestMapping("/shipments")
 public class ShipmentUiController {
@@ -115,7 +120,7 @@ public class ShipmentUiController {
             ShipmentDto saved = shipmentService.addShipment(parcelId);
             return "redirect:/shipments/" + saved.getShipmentId();
         } catch (IllegalStateException ex) {
-            // Shipment already exists — find it and redirect
+            // Shipment already exists â€” find it and redirect
             try {
                 ShipmentDto existing = shipmentService.getShipmentByParcelId(parcelId);
                 if (existing != null) {

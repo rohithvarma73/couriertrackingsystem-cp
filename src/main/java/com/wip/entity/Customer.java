@@ -3,6 +3,11 @@ package com.wip.entity;
 import jakarta.persistence.*;
 import java.util.List;
 
+/**
+ * Customer Component.
+ * 
+ * Handles operations and data related to Customer.
+ */
 @Entity
 @Table(name = "customer")
 public class Customer {

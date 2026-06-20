@@ -16,6 +16,11 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * ParcelServiceImpl Component.
+ * 
+ * Handles operations and data related to ParcelServiceImpl.
+ */
 @Service
 public class ParcelServiceImpl implements ParcelService {
 

@@ -8,6 +8,11 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * ParcelDto Component.
+ * 
+ * Handles operations and data related to ParcelDto.
+ */
 public class ParcelDto {
     private Long parcelId;
 

@@ -2,6 +2,11 @@ package com.wip.entity;
 
 import jakarta.persistence.*;
 
+/**
+ * AppUser Component.
+ * 
+ * Handles operations and data related to AppUser.
+ */
 @Entity
 @Table(name = "users")
 public class AppUser {

@@ -4,6 +4,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import jakarta.persistence.*;
 
+/**
+ * Parcel Component.
+ * 
+ * Handles operations and data related to Parcel.
+ */
 @Entity
 @Table(name = "parcel")
 public class Parcel {

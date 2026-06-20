@@ -5,6 +5,11 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
+/**
+ * CustomerDto Component.
+ * 
+ * Handles operations and data related to CustomerDto.
+ */
 public class CustomerDto {
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Customer ID")

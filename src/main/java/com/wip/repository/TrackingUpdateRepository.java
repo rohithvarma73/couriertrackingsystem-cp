@@ -7,6 +7,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * TrackingUpdateRepository Component.
+ * 
+ * Handles operations and data related to TrackingUpdateRepository.
+ */
 public interface TrackingUpdateRepository extends JpaRepository<TrackingUpdate, Long> {
     List<TrackingUpdate> findByShipment_ShipmentIdOrderByCreatedAtAsc(Long shipmentId);
     List<TrackingUpdate> findByCreatedBy_Username(String username);

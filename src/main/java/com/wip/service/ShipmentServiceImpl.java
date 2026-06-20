@@ -10,14 +10,19 @@ import com.wip.repository.ParcelRepository;
 import com.wip.repository.ShipmentRepository;
 import com.wip.repository.TrackingUpdateRepository;
 import com.wip.security.CurrentUserUtil;
+import com.wip.util.TrackingNumberGenerator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
+/**
+ * ShipmentServiceImpl Component.
+ * 
+ * Handles operations and data related to ShipmentServiceImpl.
+ */
 @Service
 public class ShipmentServiceImpl implements ShipmentService {
 
@@ -57,7 +62,7 @@ public class ShipmentServiceImpl implements ShipmentService {
         Shipment shipment = new Shipment();
         shipment.setParcel(parcel);
         shipment.setCreatedBy(currentUser);
-        shipment.setTrackingNumber("TRK-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+        shipment.setTrackingNumber(TrackingNumberGenerator.generateTrackingNumber());
         shipment.setShipmentDate(LocalDate.now());
         shipment.setCurrentLocation(parcel.getSourceAddress());
         shipment.setEstimatedDeliveryDate(LocalDate.now().plusDays(3));

@@ -3,6 +3,11 @@ package com.wip.security;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+/**
+ * CurrentUserUtil Component.
+ * 
+ * Handles operations and data related to CurrentUserUtil.
+ */
 public class CurrentUserUtil {
 
     public static String getCurrentUsername() {

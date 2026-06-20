@@ -3,6 +3,11 @@ package com.wip.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * TrackingUpdate Component.
+ * 
+ * Handles operations and data related to TrackingUpdate.
+ */
 @Entity
 @Table(name = "tracking_update")
 public class TrackingUpdate {

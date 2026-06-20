@@ -8,6 +8,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * CustomUserDetails Component.
+ * 
+ * Handles operations and data related to CustomUserDetails.
+ */
 public class CustomUserDetails implements UserDetails {
 
     private final AppUser user;

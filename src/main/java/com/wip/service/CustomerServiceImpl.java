@@ -11,6 +11,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * CustomerServiceImpl Component.
+ * 
+ * Handles operations and data related to CustomerServiceImpl.
+ */
 @Service
 public class CustomerServiceImpl implements CustomerService {
 

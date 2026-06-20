@@ -10,6 +10,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+/**
+ * HomeController Component.
+ * 
+ * Handles operations and data related to HomeController.
+ */
 @Controller
 public class HomeController {
 

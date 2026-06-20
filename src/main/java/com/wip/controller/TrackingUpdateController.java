@@ -8,6 +8,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * TrackingUpdateController Component.
+ * 
+ * Handles operations and data related to TrackingUpdateController.
+ */
 @RestController
 @RequestMapping("/api/shipments")
 public class TrackingUpdateController {

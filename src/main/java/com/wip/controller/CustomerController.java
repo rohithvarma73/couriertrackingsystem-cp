@@ -14,6 +14,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
+/**
+ * CustomerController Component.
+ * 
+ * Handles operations and data related to CustomerController.
+ */
 @RestController
 @RequestMapping("/api/customers")
 @Tag(name = "Customer Management", description = "APIs for creating, updating, fetching, and deleting customers")

@@ -9,6 +9,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * AuthServiceImpl Component.
+ * 
+ * Handles operations and data related to AuthServiceImpl.
+ */
 @Service
 public class AuthServiceImpl implements AuthService {
 

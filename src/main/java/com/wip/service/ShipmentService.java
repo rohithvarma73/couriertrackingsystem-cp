@@ -3,6 +3,11 @@ package com.wip.service;
 import com.wip.dto.ShipmentDto;
 import java.util.List;
 
+/**
+ * ShipmentService Component.
+ * 
+ * Handles operations and data related to ShipmentService.
+ */
 public interface ShipmentService {
     ShipmentDto addShipment(Long parcelId);
     List<ShipmentDto> getAllShipments();

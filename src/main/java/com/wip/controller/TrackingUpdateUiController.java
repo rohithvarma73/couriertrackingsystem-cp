@@ -13,6 +13,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 
+/**
+ * TrackingUpdateUiController Component.
+ * 
+ * Handles operations and data related to TrackingUpdateUiController.
+ */
 @Controller
 @RequestMapping("/tracking")
 public class TrackingUpdateUiController {

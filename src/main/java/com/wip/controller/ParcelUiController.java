@@ -12,6 +12,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 
+/**
+ * ParcelUiController Component.
+ * 
+ * Handles operations and data related to ParcelUiController.
+ */
 @Controller
 @RequestMapping("/parcels")
 public class ParcelUiController {

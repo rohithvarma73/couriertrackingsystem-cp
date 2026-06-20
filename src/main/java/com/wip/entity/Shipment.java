@@ -4,6 +4,11 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Shipment Component.
+ * 
+ * Handles operations and data related to Shipment.
+ */
 @Entity
 @Table(name = "shipment")
 public class Shipment {

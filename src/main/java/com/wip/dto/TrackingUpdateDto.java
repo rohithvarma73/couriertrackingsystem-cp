@@ -3,6 +3,11 @@ package com.wip.dto;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
+/**
+ * TrackingUpdateDto Component.
+ * 
+ * Handles operations and data related to TrackingUpdateDto.
+ */
 public class TrackingUpdateDto {
     private Long updateId;
     private Long shipmentId;

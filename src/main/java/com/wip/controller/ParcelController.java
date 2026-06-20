@@ -14,6 +14,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
+/**
+ * ParcelController Component.
+ * 
+ * Handles operations and data related to ParcelController.
+ */
 @RestController
 @RequestMapping("/api/parcels")
 @Tag(name = "Parcel Management", description = "APIs for parcel booking, retrieval, updates, and deletion")

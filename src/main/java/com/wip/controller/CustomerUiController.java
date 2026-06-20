@@ -10,6 +10,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+/**
+ * CustomerUiController Component.
+ * 
+ * Handles operations and data related to CustomerUiController.
+ */
 @Controller
 @RequestMapping("/customers")
 public class CustomerUiController {
@@ -89,7 +94,7 @@ public class CustomerUiController {
             redirectAttributes.addFlashAttribute("successMessage", "Customer deleted.");
             return "redirect:/customers";
         } catch (IllegalStateException ex) {
-            // Customer has linked parcels — show informative error
+            // Customer has linked parcels â€” show informative error
             model.addAttribute("errorMessage", ex.getMessage());
             return "customer/delete";
         } catch (Exception ex) {

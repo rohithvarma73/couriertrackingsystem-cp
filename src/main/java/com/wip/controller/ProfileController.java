@@ -14,6 +14,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+/**
+ * ProfileController Component.
+ * 
+ * Handles operations and data related to ProfileController.
+ */
 @Controller
 public class ProfileController {
 
@@ -37,7 +42,7 @@ public class ProfileController {
 
     @GetMapping("/profile")
     public String viewProfile(Model model) {
-        // Admins have no customer profile — show an info page instead of throwing an error
+        // Admins have no customer profile â€” show an info page instead of throwing an error
         if (CurrentUserUtil.isAdmin()) {
             model.addAttribute("adminUsername", CurrentUserUtil.getCurrentUsername());
             return "profile/admin-view";
@@ -93,3 +98,4 @@ public class ProfileController {
         }
     }
 }
+

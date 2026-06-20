@@ -4,6 +4,11 @@ import com.wip.dto.TrackingUpdateDto;
 
 import java.util.List;
 
+/**
+ * TrackingUpdateService Component.
+ * 
+ * Handles operations and data related to TrackingUpdateService.
+ */
 public interface TrackingUpdateService {
     TrackingUpdateDto addTrackingUpdate(Long shipmentId, TrackingUpdateDto trackingUpdateDto);
     List<TrackingUpdateDto> getTrackingUpdatesByShipmentId(Long shipmentId);

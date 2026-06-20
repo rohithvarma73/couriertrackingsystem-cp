@@ -5,6 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+/**
+ * RegisterDto Component.
+ * 
+ * Handles operations and data related to RegisterDto.
+ */
 public class RegisterDto {
 
     @NotBlank(message = "Username is required")

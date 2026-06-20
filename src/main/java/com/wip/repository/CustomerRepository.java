@@ -7,6 +7,11 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
+/**
+ * CustomerRepository Component.
+ * 
+ * Handles operations and data related to CustomerRepository.
+ */
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     @Query("select count(p) > 0 from Parcel p where p.customer.customerId = :customerId")

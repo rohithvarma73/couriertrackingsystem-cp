@@ -13,6 +13,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
+/**
+ * ShipmentController Component.
+ * 
+ * Handles operations and data related to ShipmentController.
+ */
 @RestController
 @RequestMapping("/api/shipments")
 @Tag(name = "Shipment Management", description = "APIs for shipment creation, tracking, updates, and deletion")

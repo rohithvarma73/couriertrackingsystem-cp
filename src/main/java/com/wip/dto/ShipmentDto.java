@@ -4,6 +4,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+/**
+ * ShipmentDto Component.
+ * 
+ * Handles operations and data related to ShipmentDto.
+ */
 public class ShipmentDto {
     private Long shipmentId;
     private Long parcelId;

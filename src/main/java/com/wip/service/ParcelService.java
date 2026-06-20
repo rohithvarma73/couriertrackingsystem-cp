@@ -3,6 +3,11 @@ package com.wip.service;
 import com.wip.dto.ParcelDto;
 import java.util.List;
 
+/**
+ * ParcelService Component.
+ * 
+ * Handles operations and data related to ParcelService.
+ */
 public interface ParcelService {
     ParcelDto addParcel(ParcelDto parcelDto);
     List<ParcelDto> getAllParcels();

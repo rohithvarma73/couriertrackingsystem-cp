@@ -14,6 +14,11 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * TrackingUpdateServiceImpl Component.
+ * 
+ * Handles operations and data related to TrackingUpdateServiceImpl.
+ */
 @Service
 public class TrackingUpdateServiceImpl implements TrackingUpdateService {
 

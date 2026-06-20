@@ -10,6 +10,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+/**
+ * AuthController Component.
+ * 
+ * Handles operations and data related to AuthController.
+ */
 @Controller
 public class AuthController {
 
