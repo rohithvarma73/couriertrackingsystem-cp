@@ -43,6 +43,7 @@ pipeline {
         sh 'kubectl apply -f deploy/mysql.yaml'
         sh 'kubectl apply -f deploy/deployment.yaml'
         sh 'kubectl apply -f deploy/service.yaml'
+        sh 'kubectl rollout status deployment/couriertrackingsystem --timeout=180s'
       }
     }
   }

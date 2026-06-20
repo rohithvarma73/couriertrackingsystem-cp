@@ -14,13 +14,15 @@ A full-stack parcel delivery and tracking platform built with **Spring Boot 3** 
 6. [Database Setup](#database-setup)
 7. [Configuration](#configuration)
 8. [Running the Application](#running-the-application)
-9. [Seeded Test Data](#seeded-test-data)
-10. [Frontend Pages](#frontend-pages)
-11. [User Flows](#user-flows)
-12. [REST API Reference](#rest-api-reference)
-13. [Error Handling](#error-handling)
-14. [Project Structure](#project-structure)
-15. [Author](#author)
+9. [Deployment (Docker, Kubernetes, Jenkins)](#deployment-docker-kubernetes-jenkins)
+10. [Seeded Test Data](#seeded-test-data)
+11. [Frontend Pages](#frontend-pages)
+12. [User Flows](#user-flows)
+13. [REST API Reference](#rest-api-reference)
+14. [Error Handling](#error-handling)
+15. [Project Structure](#project-structure)
+16. [Monitoring](#monitoring)
+17. [Author](#author)
 
 ---
 
@@ -269,6 +271,40 @@ mvn spring-boot:run
 Run the main class: `com.wip.couriertrackingsystem.CouriertrackingsystemApplication`
 
 The application starts on **`http://localhost:8080`**.
+
+---
+
+## Deployment (Docker, Kubernetes, Jenkins)
+
+The repository is fully equipped for enterprise deployments.
+
+### Docker
+A production-ready `Dockerfile` is included in the root. It uses a multi-stage-like approach and runs the application as a non-root `spring` user for enhanced security.
+```bash
+docker build -t rohithvarma73/couriertrackingsystem:latest .
+docker run -p 8080:8080 rohithvarma73/couriertrackingsystem:latest
+```
+
+### Kubernetes (Minikube/K8s)
+Manifests are located in the `deploy/` directory, featuring:
+- **`mysql.yaml`**: MySQL Deployment with a `PersistentVolumeClaim` (5Gi) for data retention, and a secure `Secret` for credentials.
+- **`deployment.yaml`**: Spring Boot Deployment with Resource Quotas (Requests/Limits) and Actuator-based Liveness & Readiness Probes.
+- **`service.yaml`**: Exposes the application via a NodePort service.
+
+To deploy:
+```bash
+kubectl apply -f deploy/mysql.yaml
+kubectl apply -f deploy/deployment.yaml
+kubectl apply -f deploy/service.yaml
+```
+
+### Jenkins CI/CD
+A fully functional `Jenkinsfile` provides a pipeline that automatically:
+1. Clones the repository
+2. Builds the `.jar` using Maven
+3. Builds the Docker Image
+4. Pushes the image to Docker Hub
+5. Deploys seamlessly to a Kubernetes cluster and monitors the rollout status.
 
 ---
 
