@@ -315,8 +315,6 @@ On first startup, `DatabaseSeederConfig` automatically creates the following acc
 | Username | Password | Role | Notes |
 |----------|----------|------|-------|
 | `admin` | `admin123` | ADMIN | No customer profile |
-| `user` | `user123` | USER | Linked to customer "John Doe" with 2 seeded parcels |
-| `jane` | `jane123` | USER | Linked to customer "Jane Smith" with 1 seeded parcel |
 
 > Seeded data is idempotent — re-running the app will not duplicate records.
 
