@@ -1,11 +1,26 @@
 pipeline {
   agent any
 
+  options {
+    skipDefaultCheckout(true)
+  }
+
+  tools {
+    jdk 'Java17'
+    maven 'Maven'
+  }
+
   environment {
     IMAGE_NAME = 'couriertrackingsystem:1.0'
   }
 
   stages {
+    stage('Clean Workspace') {
+      steps {
+        deleteDir()
+      }
+    }
+
     stage('Checkout') {
       steps {
         checkout scm
@@ -31,6 +46,15 @@ pipeline {
         sh 'kubectl apply -f deploy/service.yaml'
         sh 'kubectl rollout status deployment/couriertrackingsystem --timeout=180s'
       }
+    }
+  }
+
+  post {
+    always {
+      echo 'Pipeline finished'
+    }
+    failure {
+      echo 'Pipeline failed'
     }
   }
 }
