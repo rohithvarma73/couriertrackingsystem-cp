@@ -1,6 +1,6 @@
 FROM eclipse-temurin:17-jdk-jammy
 
-LABEL maintainer="Rohith Varma"
+LABEL maintainer="Rohith Varma","Dharshan K S"
 LABEL version="1.0"
 LABEL description="Nexus Courier Tracking System"
 
