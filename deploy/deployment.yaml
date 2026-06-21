@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: couriertrackingsystem
-          image: rohithvarma73/couriertrackingsystem:latest
+          image: couriertrackingsystem:1.0
           imagePullPolicy: Never
           ports:
             - containerPort: 8080
@@ -40,3 +40,5 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: prod
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/couriertrackingsystem
