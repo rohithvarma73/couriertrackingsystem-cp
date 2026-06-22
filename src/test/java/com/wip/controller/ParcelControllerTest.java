@@ -23,24 +23,48 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Unit tests for {@link ParcelController} covering all REST endpoints.
+ *
+ * <p>Uses {@link WebMvcTest} to load only the web layer slice, with
+ * {@link ParcelService} mocked via Mockito. Tests cover successful parcel retrieval,
+ * creation and deletion scenarios, as well as Bean Validation failures for missing
+ * required fields (weight, source address) and {@link ResourceNotFoundException}
+ * propagation when a referenced customer or parcel does not exist.</p>
+ *
+ * @author Dharshan K S
+ * @version 1.0
+ * @since 1.0
+ */
 @WebMvcTest(ParcelController.class)
 class ParcelControllerTest {
 
+    /** MockMvc instance used to perform HTTP requests against the controller. */
     @Autowired
     private MockMvc mockMvc;
 
+    /** Mocked {@link ParcelService} dependency injected into the controller under test. */
     @MockitoBean
     private ParcelService parcelService;
 
     // Required by SecurityConfig
+    /** Mocked {@link CustomUserDetailsService} required by the Spring Security configuration. */
     @MockitoBean
     private CustomUserDetailsService customUserDetailsService;
 
+    /** Jackson {@link ObjectMapper} used to serialise request bodies to JSON. */
     @Autowired
     private ObjectMapper objectMapper;
 
     // ── GET /api/parcels/getAll ───────────────────────────────────────────────
 
+    /**
+     * Verifies that {@code GET /api/parcels/getAll} returns HTTP 200 with a non-empty
+     * JSON array containing the parcel ID when at least one parcel exists and the
+     * caller has the {@code ADMIN} role.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void getAll_asAdmin_returns200() throws Exception {
@@ -52,6 +76,12 @@ class ParcelControllerTest {
                 .andExpect(jsonPath("$[0].parcelId").value(1));
     }
 
+    /**
+     * Verifies that {@code GET /api/parcels/getAll} returns HTTP 200 with an empty
+     * JSON array when no parcels exist in the system.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void getAll_empty_returns200WithEmptyArray() throws Exception {
@@ -64,6 +94,12 @@ class ParcelControllerTest {
 
     // ── GET /api/parcels/{id} ─────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@code GET /api/parcels/{id}} returns HTTP 200 with the correct
+     * parcel payload when the requested parcel ID exists.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void getById_existing_returns200() throws Exception {
@@ -75,6 +111,12 @@ class ParcelControllerTest {
                 .andExpect(jsonPath("$.parcelId").value(3));
     }
 
+    /**
+     * Verifies that {@code GET /api/parcels/{id}} returns HTTP 404 when the requested
+     * parcel ID does not exist, producing a {@link ResourceNotFoundException}.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void getById_notFound_returns404() throws Exception {
@@ -87,6 +129,12 @@ class ParcelControllerTest {
 
     // ── POST /api/parcels/addParcel ───────────────────────────────────────────
 
+    /**
+     * Verifies that {@code POST /api/parcels/addParcel} returns HTTP 200 with the
+     * persisted parcel (including a generated ID) when all required fields are valid.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void addParcel_validPayload_returns200() throws Exception {
@@ -103,6 +151,13 @@ class ParcelControllerTest {
                 .andExpect(jsonPath("$.parcelId").value(10));
     }
 
+    /**
+     * Verifies that {@code POST /api/parcels/addParcel} returns HTTP 400 when the
+     * {@code weight} field is omitted, violating the {@code @NotNull} Bean Validation
+     * constraint on the parcel DTO.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void addParcel_missingWeight_returns400() throws Exception {
@@ -120,6 +175,13 @@ class ParcelControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Verifies that {@code POST /api/parcels/addParcel} returns HTTP 400 when the
+     * {@code sourceAddress} field is omitted, violating the {@code @NotBlank} Bean
+     * Validation constraint on the parcel DTO.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void addParcel_missingSourceAddress_returns400() throws Exception {
@@ -136,6 +198,13 @@ class ParcelControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Verifies that {@code POST /api/parcels/addParcel} returns HTTP 404 when the
+     * referenced customer ID does not exist, propagating a {@link ResourceNotFoundException}
+     * from the service layer.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void addParcel_customerNotFound_returns404() throws Exception {
@@ -153,6 +222,12 @@ class ParcelControllerTest {
 
     // ── DELETE /api/parcels/{id} ──────────────────────────────────────────────
 
+    /**
+     * Verifies that {@code DELETE /api/parcels/{id}} returns HTTP 204 No Content
+     * when the parcel exists and is successfully deleted.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void deleteParcel_existing_returns204() throws Exception {
@@ -162,6 +237,12 @@ class ParcelControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+    /**
+     * Verifies that {@code DELETE /api/parcels/{id}} returns HTTP 404 when the
+     * requested parcel ID does not exist, propagating a {@link ResourceNotFoundException}.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void deleteParcel_notFound_returns404() throws Exception {
@@ -174,6 +255,17 @@ class ParcelControllerTest {
 
     // ── helper ────────────────────────────────────────────────────────────────
 
+    /**
+     * Constructs a {@link ParcelDto} with the supplied field values for use in tests.
+     *
+     * @param id         the parcel ID (may be {@code null} for creation scenarios)
+     * @param customerId the ID of the owning customer
+     * @param weight     the parcel weight in kilograms
+     * @param src        the source address from which the parcel is dispatched
+     * @param dst        the destination address to which the parcel is to be delivered
+     * @param date       the booking date for the parcel
+     * @return a fully populated {@link ParcelDto} instance
+     */
     private ParcelDto makeDto(Long id, Long customerId, BigDecimal weight,
                               String src, String dst, LocalDate date) {
         ParcelDto dto = new ParcelDto();

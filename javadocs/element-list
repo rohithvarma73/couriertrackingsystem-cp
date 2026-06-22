@@ -1,0 +1,10 @@
+com.wip
+com.wip.config
+com.wip.controller
+com.wip.dto
+com.wip.entity
+com.wip.exception
+com.wip.repository
+com.wip.security
+com.wip.service
+com.wip.util

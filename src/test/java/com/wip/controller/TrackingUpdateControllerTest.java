@@ -23,24 +23,49 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Unit tests for {@link TrackingUpdateController} covering all REST endpoints.
+ *
+ * <p>Uses {@link WebMvcTest} to load only the web layer slice, with
+ * {@link TrackingUpdateService} mocked via Mockito. Tests validate retrieval of
+ * tracking updates for a given shipment (including empty list and shipment-not-found
+ * scenarios), addition of new tracking updates with valid and invalid payloads, and
+ * role-based access control confirming that both {@code ADMIN} and {@code USER}
+ * roles can view tracking information.</p>
+ *
+ * @author Dharshan K S
+ * @version 1.0
+ * @since 1.0
+ */
 @WebMvcTest(TrackingUpdateController.class)
 class TrackingUpdateControllerTest {
 
+    /** MockMvc instance used to perform HTTP requests against the controller. */
     @Autowired
     private MockMvc mockMvc;
 
+    /** Mocked {@link TrackingUpdateService} dependency injected into the controller under test. */
     @MockitoBean
     private TrackingUpdateService trackingUpdateService;
 
     // Required by SecurityConfig
+    /** Mocked {@link CustomUserDetailsService} required by the Spring Security configuration. */
     @MockitoBean
     private CustomUserDetailsService customUserDetailsService;
 
+    /** Jackson {@link ObjectMapper} used to serialise request bodies to JSON. */
     @Autowired
     private ObjectMapper objectMapper;
 
     // ── GET /api/shipments/{shipmentId}/tracking-updates ──────────────────────
 
+    /**
+     * Verifies that {@code GET /api/shipments/{shipmentId}/tracking-updates} returns
+     * HTTP 200 with a non-empty JSON array containing the update ID and delivery status
+     * when tracking updates exist for the given shipment.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void getByShipmentId_existing_returns200WithList() throws Exception {
@@ -53,6 +78,13 @@ class TrackingUpdateControllerTest {
                 .andExpect(jsonPath("$[0].deliveryStatus").value("In Transit"));
     }
 
+    /**
+     * Verifies that {@code GET /api/shipments/{shipmentId}/tracking-updates} returns
+     * HTTP 200 with an empty JSON array when no tracking updates have been recorded
+     * for the given shipment.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void getByShipmentId_noUpdates_returns200WithEmptyList() throws Exception {
@@ -63,6 +95,13 @@ class TrackingUpdateControllerTest {
                 .andExpect(jsonPath("$").isEmpty());
     }
 
+    /**
+     * Verifies that {@code GET /api/shipments/{shipmentId}/tracking-updates} returns
+     * HTTP 404 when the specified shipment ID does not exist, propagating a
+     * {@link ResourceNotFoundException} from the service layer.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void getByShipmentId_shipmentNotFound_returns404() throws Exception {
@@ -75,6 +114,13 @@ class TrackingUpdateControllerTest {
 
     // ── POST /api/shipments/{shipmentId}/tracking-updates ─────────────────────
 
+    /**
+     * Verifies that {@code POST /api/shipments/{shipmentId}/tracking-updates} returns
+     * HTTP 200 with the persisted tracking update (including a generated update ID and
+     * delivery status) when all required fields are valid.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void addUpdate_validPayload_returns200() throws Exception {
@@ -97,6 +143,13 @@ class TrackingUpdateControllerTest {
                 .andExpect(jsonPath("$.deliveryStatus").value("Delivered"));
     }
 
+    /**
+     * Verifies that {@code POST /api/shipments/{shipmentId}/tracking-updates} returns
+     * HTTP 400 when the {@code deliveryStatus} field is omitted, violating the
+     * {@code @NotBlank} Bean Validation constraint on the tracking update DTO.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void addUpdate_missingDeliveryStatus_returns400() throws Exception {
@@ -111,6 +164,13 @@ class TrackingUpdateControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Verifies that {@code POST /api/shipments/{shipmentId}/tracking-updates} returns
+     * HTTP 400 when the {@code location} field is omitted, violating the
+     * {@code @NotBlank} Bean Validation constraint on the tracking update DTO.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void addUpdate_missingLocation_returns400() throws Exception {
@@ -125,6 +185,13 @@ class TrackingUpdateControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Verifies that {@code POST /api/shipments/{shipmentId}/tracking-updates} returns
+     * HTTP 404 when the specified shipment ID does not exist, propagating a
+     * {@link ResourceNotFoundException} from the service layer.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void addUpdate_shipmentNotFound_returns404() throws Exception {
@@ -144,6 +211,13 @@ class TrackingUpdateControllerTest {
 
     // ── auth guard ────────────────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@code GET /api/shipments/{shipmentId}/tracking-updates} returns
+     * HTTP 200 when a caller with the {@code USER} role makes the request, confirming
+     * that regular users are permitted to view tracking information.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "USER")
     void getByShipmentId_asUser_returns200() throws Exception {
@@ -156,6 +230,17 @@ class TrackingUpdateControllerTest {
 
     // ── helper ────────────────────────────────────────────────────────────────
 
+    /**
+     * Constructs a {@link TrackingUpdateDto} with the supplied field values for use in tests.
+     *
+     * @param id         the unique update ID
+     * @param shipmentId the ID of the associated shipment
+     * @param status     the delivery status label (e.g., "In Transit", "Delivered")
+     * @param location   the physical location at the time of the update
+     * @param remarks    free-text remarks describing the update event
+     * @param createdAt  the timestamp when the tracking update was created
+     * @return a fully populated {@link TrackingUpdateDto} instance
+     */
     private TrackingUpdateDto makeDto(Long id, Long shipmentId, String status,
                                      String location, String remarks, LocalDateTime createdAt) {
         TrackingUpdateDto dto = new TrackingUpdateDto();

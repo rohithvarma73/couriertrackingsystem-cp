@@ -15,9 +15,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * TrackingUpdateServiceImpl Component.
- * 
- * Handles operations and data related to TrackingUpdateServiceImpl.
+ * Service implementation for managing tracking update business logic.
+ *
+ * <p>Handles the creation, retrieval, and deletion of tracking updates for shipments.
+ * Enforces role-based access control, allowing only administrators to add or delete
+ * updates, while restricting users to view only updates for their own shipments.</p>
+ *
+ * @author Rohith Varma K
+ * @version 1.0
+ * @since 1.0
  */
 @Service
 public class TrackingUpdateServiceImpl implements TrackingUpdateService {
@@ -26,6 +32,13 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
     private final ShipmentRepository shipmentRepository;
     private final AppUserRepository appUserRepository;
 
+    /**
+     * Constructs a {@code TrackingUpdateServiceImpl} with the required dependencies.
+     *
+     * @param trackingUpdateRepository the repository for tracking update data
+     * @param shipmentRepository       the repository for shipment data
+     * @param appUserRepository        the repository for user data
+     */
     public TrackingUpdateServiceImpl(TrackingUpdateRepository trackingUpdateRepository,
                                      ShipmentRepository shipmentRepository,
                                      AppUserRepository appUserRepository) {
@@ -34,6 +47,15 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         this.appUserRepository = appUserRepository;
     }
 
+    /**
+     * Adds a new tracking update to an existing shipment and updates its current location.
+     *
+     * @param shipmentId        the unique identifier of the shipment
+     * @param trackingUpdateDto the tracking update data to persist
+     * @return the saved tracking update details
+     * @throws IllegalStateException if the user is not an administrator
+     * @throws ResourceNotFoundException if the shipment or user is not found
+     */
     @Override
     public TrackingUpdateDto addTrackingUpdate(Long shipmentId, TrackingUpdateDto trackingUpdateDto) {
         if (!CurrentUserUtil.isAdmin()) {
@@ -61,6 +83,13 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         return toDto(trackingUpdateRepository.save(trackingUpdate));
     }
 
+    /**
+     * Retrieves all tracking updates associated with a given shipment.
+     *
+     * @param shipmentId the unique identifier of the shipment
+     * @return a list of tracking updates ordered by creation time
+     * @throws ResourceNotFoundException if the shipment is not found or access is denied
+     */
     @Override
     public List<TrackingUpdateDto> getTrackingUpdatesByShipmentId(Long shipmentId) {
         Shipment shipment = shipmentRepository.findById(shipmentId)
@@ -79,6 +108,13 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         return updates.stream().map(this::toDto).toList();
     }
 
+    /**
+     * Retrieves a single tracking update by its ID.
+     *
+     * @param updateId the unique identifier of the tracking update
+     * @return the tracking update details
+     * @throws ResourceNotFoundException if the update is not found or access is denied
+     */
     @Override
     public TrackingUpdateDto getTrackingUpdateById(Long updateId) {
         TrackingUpdate update = trackingUpdateRepository.findById(updateId)
@@ -97,6 +133,13 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         return toDto(update);
     }
 
+    /**
+     * Deletes a tracking update from the system.
+     *
+     * @param updateId the unique identifier of the tracking update to delete
+     * @throws IllegalStateException if the user is not an administrator
+     * @throws ResourceNotFoundException if the tracking update is not found
+     */
     @Override
     public void deleteTrackingUpdate(Long updateId) {
         if (!CurrentUserUtil.isAdmin()) {
@@ -108,6 +151,12 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         trackingUpdateRepository.delete(update);
     }
 
+    /**
+     * Searches for tracking updates using a keyword.
+     *
+     * @param keyword the search string
+     * @return a list of tracking updates matching the criteria
+     */
     @Override
     public List<TrackingUpdateDto> search(String keyword) {
         List<TrackingUpdateDto> updates = getAllTrackingUpdates();
@@ -127,6 +176,11 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
                 .toList();
     }
 
+    /**
+     * Retrieves all tracking updates accessible to the current user.
+     *
+     * @return a list of all accessible tracking updates
+     */
     @Override
     public List<TrackingUpdateDto> getAllTrackingUpdates() {
         if (CurrentUserUtil.isAdmin()) {
@@ -139,6 +193,12 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
                 .toList();
     }
 
+    /**
+     * Converts a {@link TrackingUpdate} entity to a {@link TrackingUpdateDto}.
+     *
+     * @param update the tracking update entity
+     * @return the converted DTO
+     */
     private TrackingUpdateDto toDto(TrackingUpdate update) {
         TrackingUpdateDto dto = new TrackingUpdateDto();
         dto.setUpdateId(update.getUpdateId());

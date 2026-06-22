@@ -24,6 +24,17 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link TrackingUpdateServiceImpl}.
+ *
+ * <p>Validates the business logic for creating, retrieving, and deleting tracking updates
+ * for a shipment. Uses Mockito to isolate the service layer from the database and to
+ * simulate the authenticated user via {@link CurrentUserUtil}.</p>
+ *
+ * @author Dharshan K S
+ * @version 1.0
+ * @since 1.0
+ */
 @ExtendWith(MockitoExtension.class)
 class TrackingUpdateServiceImplTest {
 
@@ -39,6 +50,9 @@ class TrackingUpdateServiceImplTest {
     @InjectMocks
     private TrackingUpdateServiceImpl trackingUpdateService;
 
+    /**
+     * Validates that an administrator can add a new tracking update.
+     */
     @Test
     void testAddTrackingUpdate() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -88,6 +102,9 @@ class TrackingUpdateServiceImplTest {
         }
     }
 
+    /**
+     * Validates that a ResourceNotFoundException is thrown when adding an update to a non-existent shipment.
+     */
     @Test
     void testAddTrackingUpdateShipmentNotFound() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -112,6 +129,9 @@ class TrackingUpdateServiceImplTest {
         }
     }
 
+    /**
+     * Validates that all tracking updates for a given shipment can be retrieved.
+     */
     @Test
     void testGetTrackingUpdatesByShipmentId() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -155,6 +175,9 @@ class TrackingUpdateServiceImplTest {
         }
     }
 
+    /**
+     * Validates that an empty list is returned when there are no updates for a shipment.
+     */
     @Test
     void testGetTrackingUpdatesByShipmentIdEmpty() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -179,6 +202,9 @@ class TrackingUpdateServiceImplTest {
         }
     }
 
+    /**
+     * Validates that an exception is thrown when fetching updates for a non-existent shipment.
+     */
     @Test
     void testGetTrackingUpdatesByShipmentIdShipmentNotFound() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -197,6 +223,9 @@ class TrackingUpdateServiceImplTest {
         }
     }
 
+    /**
+     * Validates that a single tracking update can be retrieved by its ID.
+     */
     @Test
     void testGetTrackingUpdateById() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -230,6 +259,9 @@ class TrackingUpdateServiceImplTest {
         }
     }
 
+    /**
+     * Validates that an exception is thrown when a non-existent tracking update is requested.
+     */
     @Test
     void testGetTrackingUpdateByIdNotFound() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -246,6 +278,9 @@ class TrackingUpdateServiceImplTest {
         }
     }
 
+    /**
+     * Validates that an administrator can delete a tracking update.
+     */
     @Test
     void testDeleteTrackingUpdate() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -265,6 +300,9 @@ class TrackingUpdateServiceImplTest {
         }
     }
 
+    /**
+     * Validates that a ResourceNotFoundException is thrown when trying to delete a non-existent update.
+     */
     @Test
     void testDeleteTrackingUpdateNotFound() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {

@@ -15,6 +15,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class DatabaseSeederConfig {
 
+    /**
+     * Bean definition for seeding the database.
+     *
+     * @param appUserRepository the repository for accessing user records
+     * @param passwordEncoder   the encoder used to hash passwords
+     * @return a CommandLineRunner that executes the seeding logic on startup
+     */
     @Bean
     public CommandLineRunner initDatabase(AppUserRepository appUserRepository,
                                           PasswordEncoder passwordEncoder) {

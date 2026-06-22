@@ -27,22 +27,63 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link ParcelServiceImpl} covering all service-layer operations.
+ *
+ * <p>Uses the Mockito JUnit 5 extension to isolate the service from its repository
+ * dependencies. {@link CurrentUserUtil} is mocked as a static utility to simulate
+ * different caller identities ({@code ADMIN} vs. regular {@code USER}). Scenarios
+ * validated include:</p>
+ * <ul>
+ *   <li>Adding a parcel as admin with an explicit customer ID.</li>
+ *   <li>Adding a parcel as a regular user where the customer ID is resolved from the
+ *       caller's own linked customer.</li>
+ *   <li>Handling a non-existent customer reference during parcel creation.</li>
+ *   <li>Retrieving a parcel by ID with admin access, owner access, and denied access
+ *       for non-owners.</li>
+ *   <li>Deleting a parcel as admin and rejecting deletion by non-owners.</li>
+ *   <li>Listing all parcels as admin and handling an empty dataset.</li>
+ * </ul>
+ *
+ * @author Dharshan K S
+ * @version 1.0
+ * @since 1.0
+ */
 @ExtendWith(MockitoExtension.class)
 class ParcelServiceImplTest {
 
+    /** Mocked repository for {@link Parcel} persistence operations. */
     @Mock private ParcelRepository parcelRepository;
+
+    /** Mocked repository for {@link Customer} lookup operations. */
     @Mock private CustomerRepository customerRepository;
+
+    /** Mocked repository for {@code Shipment} existence checks linked to a parcel. */
     @Mock private ShipmentRepository shipmentRepository;
+
+    /** Mocked repository for {@link AppUser} lookup operations. */
     @Mock private AppUserRepository appUserRepository;
 
+    /** The {@link ParcelServiceImpl} instance under test with mocked dependencies injected. */
     @InjectMocks
     private ParcelServiceImpl parcelService;
 
+    /** Simulated admin user used in test fixtures. */
     private AppUser adminUser;
+
+    /** Simulated regular (non-admin) user used in test fixtures. */
     private AppUser regularUser;
+
+    /** Sample {@link Customer} entity associated with parcels in test fixtures. */
     private Customer customer;
+
+    /** Sample {@link Parcel} entity returned by mocked repository calls. */
     private Parcel parcel;
 
+    /**
+     * Initialises shared test fixtures — admin user, regular user, customer, and parcel —
+     * before each test method executes.
+     */
     @BeforeEach
     void setUp() {
         adminUser = new AppUser();
@@ -74,6 +115,11 @@ class ParcelServiceImplTest {
 
     // ── addParcel ─────────────────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@link ParcelServiceImpl#addParcel(ParcelDto)} successfully persists
+     * a new parcel and returns the correct DTO — including the generated parcel ID and
+     * receiver phone — when the caller is an admin who provides a valid customer ID.
+     */
     @Test
     void addParcel_asAdmin_savesSuccessfully() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -99,6 +145,11 @@ class ParcelServiceImplTest {
         }
     }
 
+    /**
+     * Verifies that {@link ParcelServiceImpl#addParcel(ParcelDto)} overrides the customer
+     * ID in the DTO with the authenticated user's own linked customer when the caller has
+     * the regular {@code USER} role, ensuring users can only create parcels for themselves.
+     */
     @Test
     void addParcel_asUser_usesOwnCustomerId() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -126,6 +177,11 @@ class ParcelServiceImplTest {
         }
     }
 
+    /**
+     * Verifies that {@link ParcelServiceImpl#addParcel(ParcelDto)} throws a
+     * {@link ResourceNotFoundException} and never calls {@code save} when the supplied
+     * customer ID does not correspond to any customer in the repository.
+     */
     @Test
     void addParcel_customerNotFound_throwsException() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -149,6 +205,10 @@ class ParcelServiceImplTest {
 
     // ── getParcelById ─────────────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@link ParcelServiceImpl#getParcelById(Long)} returns the correct
+     * parcel DTO when the caller is an admin and the parcel ID exists.
+     */
     @Test
     void getParcelById_asAdmin_returnsParcel() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -161,6 +221,11 @@ class ParcelServiceImplTest {
         }
     }
 
+    /**
+     * Verifies that {@link ParcelServiceImpl#getParcelById(Long)} returns the correct
+     * parcel DTO when the caller is the user who created the parcel (the owning user),
+     * confirming that ownership-based access is granted.
+     */
     @Test
     void getParcelById_asOwningUser_returnsParcel() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -174,6 +239,11 @@ class ParcelServiceImplTest {
         }
     }
 
+    /**
+     * Verifies that {@link ParcelServiceImpl#getParcelById(Long)} throws a
+     * {@link ResourceNotFoundException} when a regular user who did not create the parcel
+     * attempts to access it, enforcing strict data isolation.
+     */
     @Test
     void getParcelById_asOtherUser_throwsException() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -185,6 +255,11 @@ class ParcelServiceImplTest {
         }
     }
 
+    /**
+     * Verifies that {@link ParcelServiceImpl#getParcelById(Long)} throws a
+     * {@link ResourceNotFoundException} when the requested parcel ID does not exist,
+     * even when the caller is an admin.
+     */
     @Test
     void getParcelById_notFound_throwsException() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -197,6 +272,11 @@ class ParcelServiceImplTest {
 
     // ── deleteParcel ──────────────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@link ParcelServiceImpl#deleteParcel(Long)} successfully removes
+     * the parcel without throwing an exception when the caller is an admin and the parcel
+     * has no associated shipment.
+     */
     @Test
     void deleteParcel_asAdmin_deletesSuccessfully() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -210,6 +290,11 @@ class ParcelServiceImplTest {
         }
     }
 
+    /**
+     * Verifies that {@link ParcelServiceImpl#deleteParcel(Long)} throws a
+     * {@link ResourceNotFoundException} and never calls {@code delete} when the caller
+     * is a user who does not own the parcel, enforcing ownership-based delete restrictions.
+     */
     @Test
     void deleteParcel_asOtherUser_throwsException() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -224,6 +309,10 @@ class ParcelServiceImplTest {
 
     // ── getAllParcels ─────────────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@link ParcelServiceImpl#getAllParcels()} returns all parcels in the
+     * system without filtering when the caller has the {@code ADMIN} role.
+     */
     @Test
     void getAllParcels_asAdmin_returnsAll() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -236,6 +325,10 @@ class ParcelServiceImplTest {
         }
     }
 
+    /**
+     * Verifies that {@link ParcelServiceImpl#getAllParcels()} returns an empty list
+     * rather than throwing an exception when no parcels exist in the database.
+     */
     @Test
     void getAllParcels_emptyDatabase_returnsEmptyList() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {

@@ -23,22 +23,54 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link CustomerServiceImpl} covering all service-layer operations.
+ *
+ * <p>Uses the Mockito JUnit 5 extension to isolate the service from its repository
+ * dependencies. {@link CurrentUserUtil} is mocked as a static utility to simulate
+ * different caller identities ({@code ADMIN} vs. regular {@code USER}) without
+ * requiring a full Spring Security context. Scenarios validated include:</p>
+ * <ul>
+ *   <li>Adding a customer as admin and handling unknown caller identities.</li>
+ *   <li>Listing all customers as admin versus showing only owned customers to regular users.</li>
+ *   <li>Retrieving a customer by ID with access-control enforcement.</li>
+ *   <li>Updating customer details as admin.</li>
+ *   <li>Deleting customers with parcel-existence guard and role guard.</li>
+ *   <li>Searching customers by name with matching and non-matching queries.</li>
+ * </ul>
+ *
+ * @author Dharshan K S
+ * @version 1.0
+ * @since 1.0
+ */
 @ExtendWith(MockitoExtension.class)
 class CustomerServiceImplTest {
 
+    /** Mocked repository for {@link Customer} persistence operations. */
     @Mock
     private CustomerRepository customerRepository;
 
+    /** Mocked repository for {@link AppUser} lookup operations. */
     @Mock
     private AppUserRepository appUserRepository;
 
+    /** The {@link CustomerServiceImpl} instance under test with mocked dependencies injected. */
     @InjectMocks
     private CustomerServiceImpl customerService;
 
+    /** Simulated admin user used in test fixtures. */
     private AppUser adminUser;
+
+    /** Simulated regular (non-admin) user used in test fixtures. */
     private AppUser regularUser;
+
+    /** Sample {@link Customer} entity used across multiple test cases. */
     private Customer customer;
 
+    /**
+     * Initialises shared test fixtures — admin user, regular user, and a sample customer —
+     * before each test method executes.
+     */
     @BeforeEach
     void setUp() {
         adminUser = new AppUser();
@@ -62,6 +94,11 @@ class CustomerServiceImplTest {
 
     // ── addCustomer ──────────────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@link CustomerServiceImpl#addCustomer(CustomerDto)} successfully
+     * persists a new customer and returns the populated DTO when the caller is an admin
+     * with a valid user account in the repository.
+     */
     @Test
     void addCustomer_asAdmin_savesSuccessfully() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -86,6 +123,11 @@ class CustomerServiceImplTest {
         }
     }
 
+    /**
+     * Verifies that {@link CustomerServiceImpl#addCustomer(CustomerDto)} throws a
+     * {@link ResourceNotFoundException} and never calls {@code save} when the
+     * authenticated username does not correspond to any user account in the repository.
+     */
     @Test
     void addCustomer_userNotFound_throwsException() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -106,6 +148,10 @@ class CustomerServiceImplTest {
 
     // ── getAllCustomers ───────────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@link CustomerServiceImpl#getAllCustomers()} returns all customers
+     * in the system without filtering when the caller has the {@code ADMIN} role.
+     */
     @Test
     void getAllCustomers_asAdmin_returnsAll() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -119,6 +165,11 @@ class CustomerServiceImplTest {
         }
     }
 
+    /**
+     * Verifies that {@link CustomerServiceImpl#getAllCustomers()} returns only the
+     * customers created by the authenticated user when the caller has the regular
+     * {@code USER} role, enforcing data isolation between users.
+     */
     @Test
     void getAllCustomers_asUser_returnsOnlyOwnCustomers() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -135,6 +186,10 @@ class CustomerServiceImplTest {
         }
     }
 
+    /**
+     * Verifies that {@link CustomerServiceImpl#getAllCustomers()} returns an empty list
+     * rather than throwing an exception when no customers exist in the database.
+     */
     @Test
     void getAllCustomers_emptyDatabase_returnsEmptyList() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -149,6 +204,10 @@ class CustomerServiceImplTest {
 
     // ── getCustomerById ───────────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@link CustomerServiceImpl#getCustomerById(Long)} returns the
+     * correct customer DTO when the caller is an admin and the customer ID exists.
+     */
     @Test
     void getCustomerById_asAdmin_returnsCustomer() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -162,6 +221,11 @@ class CustomerServiceImplTest {
         }
     }
 
+    /**
+     * Verifies that {@link CustomerServiceImpl#getCustomerById(Long)} throws a
+     * {@link ResourceNotFoundException} when the requested customer ID does not exist,
+     * even when the caller is an admin.
+     */
     @Test
     void getCustomerById_notFound_throwsException() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -172,6 +236,11 @@ class CustomerServiceImplTest {
         }
     }
 
+    /**
+     * Verifies that {@link CustomerServiceImpl#getCustomerById(Long)} throws a
+     * {@link ResourceNotFoundException} when a regular user attempts to retrieve a
+     * customer that was created by a different user, enforcing ownership-based access control.
+     */
     @Test
     void getCustomerById_asUser_accessOtherUserCustomer_throwsException() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -187,6 +256,11 @@ class CustomerServiceImplTest {
 
     // ── updateCustomer ────────────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@link CustomerServiceImpl#updateCustomer(Long, CustomerDto)} applies
+     * the supplied changes to the existing customer entity and returns the updated DTO
+     * when the caller is an admin.
+     */
     @Test
     void updateCustomer_asAdmin_updatesSuccessfully() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -218,6 +292,11 @@ class CustomerServiceImplTest {
 
     // ── deleteCustomer ────────────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@link CustomerServiceImpl#deleteCustomer(Long)} throws an
+     * {@link IllegalStateException} and never calls {@code delete} when the caller
+     * does not have the {@code ADMIN} role, enforcing delete privilege restrictions.
+     */
     @Test
     void deleteCustomer_asNonAdmin_throwsIllegalState() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -228,6 +307,11 @@ class CustomerServiceImplTest {
         }
     }
 
+    /**
+     * Verifies that {@link CustomerServiceImpl#deleteCustomer(Long)} throws an
+     * {@link IllegalStateException} and never calls {@code delete} when the customer
+     * still has associated parcels, protecting referential integrity.
+     */
     @Test
     void deleteCustomer_withParcels_throwsIllegalState() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -241,6 +325,11 @@ class CustomerServiceImplTest {
         }
     }
 
+    /**
+     * Verifies that {@link CustomerServiceImpl#deleteCustomer(Long)} successfully removes
+     * the customer without throwing an exception when the caller is an admin and the
+     * customer has no associated parcels.
+     */
     @Test
     void deleteCustomer_noParcels_deletesSuccessfully() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -257,6 +346,11 @@ class CustomerServiceImplTest {
 
     // ── search ────────────────────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@link CustomerServiceImpl#search(String)} returns a list containing
+     * only the customers whose names match the given search keyword (case-insensitive prefix
+     * or substring match).
+     */
     @Test
     void search_byName_returnsMatchingCustomer() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -269,6 +363,10 @@ class CustomerServiceImplTest {
         }
     }
 
+    /**
+     * Verifies that {@link CustomerServiceImpl#search(String)} returns an empty list
+     * when no customer names match the supplied search keyword.
+     */
     @Test
     void search_noMatch_returnsEmpty() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {

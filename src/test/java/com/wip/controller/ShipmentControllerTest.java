@@ -22,24 +22,48 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Unit tests for {@link ShipmentController} covering all REST endpoints.
+ *
+ * <p>Uses {@link WebMvcTest} to load only the web layer slice, with
+ * {@link ShipmentService} mocked via Mockito. Tests validate successful shipment
+ * listing, retrieval by ID, retrieval by tracking number, creation, deletion and
+ * location update operations. Error scenarios covered include shipment not found,
+ * parcel not found, and duplicate shipment creation attempts.</p>
+ *
+ * @author Dharshan K S
+ * @version 1.0
+ * @since 1.0
+ */
 @WebMvcTest(ShipmentController.class)
 class ShipmentControllerTest {
 
+    /** MockMvc instance used to perform HTTP requests against the controller. */
     @Autowired
     private MockMvc mockMvc;
 
+    /** Mocked {@link ShipmentService} dependency injected into the controller under test. */
     @MockitoBean
     private ShipmentService shipmentService;
 
     // Required by SecurityConfig
+    /** Mocked {@link CustomUserDetailsService} required by the Spring Security configuration. */
     @MockitoBean
     private CustomUserDetailsService customUserDetailsService;
 
+    /** Jackson {@link ObjectMapper} used to serialise request bodies to JSON. */
     @Autowired
     private ObjectMapper objectMapper;
 
     // ── GET /api/shipments/getAll ─────────────────────────────────────────────
 
+    /**
+     * Verifies that {@code GET /api/shipments/getAll} returns HTTP 200 with a non-empty
+     * JSON array including the shipment ID and tracking number when at least one shipment
+     * exists and the caller has the {@code ADMIN} role.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void getAll_asAdmin_returns200() throws Exception {
@@ -52,6 +76,12 @@ class ShipmentControllerTest {
                 .andExpect(jsonPath("$[0].trackingNumber").value("TRK-ABC123"));
     }
 
+    /**
+     * Verifies that {@code GET /api/shipments/getAll} returns HTTP 200 with an empty
+     * JSON array when no shipments exist in the system.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void getAll_empty_returns200WithEmptyArray() throws Exception {
@@ -64,6 +94,12 @@ class ShipmentControllerTest {
 
     // ── GET /api/shipments/{id} ───────────────────────────────────────────────
 
+    /**
+     * Verifies that {@code GET /api/shipments/{id}} returns HTTP 200 with the correct
+     * shipment payload when the requested shipment ID exists.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void getById_existing_returns200() throws Exception {
@@ -75,6 +111,12 @@ class ShipmentControllerTest {
                 .andExpect(jsonPath("$.shipmentId").value(5));
     }
 
+    /**
+     * Verifies that {@code GET /api/shipments/{id}} returns HTTP 404 when the requested
+     * shipment ID does not exist, propagating a {@link ResourceNotFoundException}.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void getById_notFound_returns404() throws Exception {
@@ -87,6 +129,12 @@ class ShipmentControllerTest {
 
     // ── GET /api/shipments/tracking/{trackingNumber} ──────────────────────────
 
+    /**
+     * Verifies that {@code GET /api/shipments/tracking/{trackingNumber}} returns HTTP 200
+     * with a matching tracking number in the response body when the shipment exists.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void getByTrackingNumber_existing_returns200() throws Exception {
@@ -98,6 +146,12 @@ class ShipmentControllerTest {
                 .andExpect(jsonPath("$.trackingNumber").value("TRK-TEST001"));
     }
 
+    /**
+     * Verifies that {@code GET /api/shipments/tracking/{trackingNumber}} returns HTTP 404
+     * when the supplied tracking number does not correspond to any shipment.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void getByTrackingNumber_notFound_returns404() throws Exception {
@@ -110,6 +164,12 @@ class ShipmentControllerTest {
 
     // ── POST /api/shipments/addShipment/{parcelId} ────────────────────────────
 
+    /**
+     * Verifies that {@code POST /api/shipments/addShipment/{parcelId}} returns HTTP 200
+     * with a generated tracking number in the response when a valid parcel ID is supplied.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void addShipment_validParcel_returns200WithTrackingNumber() throws Exception {
@@ -121,6 +181,13 @@ class ShipmentControllerTest {
                 .andExpect(jsonPath("$.trackingNumber").value("TRK-NEW001"));
     }
 
+    /**
+     * Verifies that {@code POST /api/shipments/addShipment/{parcelId}} returns HTTP 404
+     * when the referenced parcel ID does not exist, propagating a
+     * {@link ResourceNotFoundException} from the service layer.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void addShipment_parcelNotFound_returns404() throws Exception {
@@ -131,6 +198,13 @@ class ShipmentControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    /**
+     * Verifies that {@code POST /api/shipments/addShipment/{parcelId}} returns HTTP 400
+     * when a shipment already exists for the specified parcel, enforcing the
+     * one-shipment-per-parcel business rule.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void addShipment_duplicate_returns400() throws Exception {
@@ -143,6 +217,12 @@ class ShipmentControllerTest {
 
     // ── DELETE /api/shipments/{id} ────────────────────────────────────────────
 
+    /**
+     * Verifies that {@code DELETE /api/shipments/{id}} returns HTTP 204 No Content
+     * when the shipment exists and is successfully deleted.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void deleteShipment_existing_returns204() throws Exception {
@@ -154,6 +234,13 @@ class ShipmentControllerTest {
 
     // ── PUT /api/shipments/{id}/location ──────────────────────────────────────
 
+    /**
+     * Verifies that {@code PUT /api/shipments/{id}/location} returns HTTP 200 with the
+     * updated {@code currentLocation} field reflected in the response body when the
+     * shipment exists and a valid location is provided.
+     *
+     * @throws Exception if MockMvc request processing fails
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void updateLocation_existing_returns200() throws Exception {
@@ -169,6 +256,16 @@ class ShipmentControllerTest {
 
     // ── helper ────────────────────────────────────────────────────────────────
 
+    /**
+     * Constructs a {@link ShipmentDto} with the supplied field values for use in tests.
+     *
+     * @param id        the shipment ID
+     * @param parcelId  the ID of the associated parcel
+     * @param tracking  the unique tracking number for the shipment
+     * @param location  the current physical location of the shipment
+     * @param eta       the estimated delivery date
+     * @return a fully populated {@link ShipmentDto} instance
+     */
     private ShipmentDto makeDto(Long id, Long parcelId, String tracking, String location, LocalDate eta) {
         ShipmentDto dto = new ShipmentDto();
         dto.setShipmentId(id);

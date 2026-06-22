@@ -19,9 +19,15 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * ShipmentServiceImpl Component.
- * 
- * Handles operations and data related to ShipmentServiceImpl.
+ * Service implementation for managing shipment business logic.
+ *
+ * <p>Handles the creation, tracking, updating, and deletion of shipments.
+ * Enforces role-based access control, allowing only administrators to modify
+ * shipments while restricting regular users to read-only access for their own data.</p>
+ *
+ * @author Rohith Varma K
+ * @version 1.0
+ * @since 1.0
  */
 @Service
 public class ShipmentServiceImpl implements ShipmentService {
@@ -31,6 +37,14 @@ public class ShipmentServiceImpl implements ShipmentService {
     private final TrackingUpdateRepository trackingUpdateRepository;
     private final AppUserRepository appUserRepository;
 
+    /**
+     * Constructs a {@code ShipmentServiceImpl} with the required dependencies.
+     *
+     * @param shipmentRepository       the repository for shipment data
+     * @param parcelRepository         the repository for parcel data
+     * @param trackingUpdateRepository the repository for tracking update data
+     * @param appUserRepository        the repository for user data
+     */
     public ShipmentServiceImpl(ShipmentRepository shipmentRepository,
                                ParcelRepository parcelRepository,
                                TrackingUpdateRepository trackingUpdateRepository,
@@ -41,6 +55,14 @@ public class ShipmentServiceImpl implements ShipmentService {
         this.appUserRepository = appUserRepository;
     }
 
+    /**
+     * Creates a new shipment for an existing parcel and generates a tracking number.
+     *
+     * @param parcelId the unique identifier of the parcel to ship
+     * @return the created shipment details
+     * @throws IllegalStateException if the user is not an administrator, or if a shipment already exists
+     * @throws ResourceNotFoundException if the parcel or user is not found
+     */
     @Override
     public ShipmentDto addShipment(Long parcelId) {
         if (!CurrentUserUtil.isAdmin()) {
@@ -70,6 +92,11 @@ public class ShipmentServiceImpl implements ShipmentService {
         return toDto(shipmentRepository.save(shipment));
     }
 
+    /**
+     * Retrieves all shipments accessible to the current user.
+     *
+     * @return a list of all accessible shipments
+     */
     @Override
     public List<ShipmentDto> getAllShipments() {
         if (CurrentUserUtil.isAdmin()) {
@@ -82,6 +109,13 @@ public class ShipmentServiceImpl implements ShipmentService {
                 .toList();
     }
 
+    /**
+     * Retrieves a shipment by its ID.
+     *
+     * @param id the unique identifier of the shipment
+     * @return the shipment details
+     * @throws ResourceNotFoundException if the shipment does not exist or access is denied
+     */
     @Override
     public ShipmentDto getShipmentById(Long id) {
         Shipment shipment = shipmentRepository.findById(id)
@@ -99,6 +133,13 @@ public class ShipmentServiceImpl implements ShipmentService {
         return toDto(shipment);
     }
 
+    /**
+     * Retrieves a shipment by its tracking number.
+     *
+     * @param trackingNumber the unique alphanumeric tracking number
+     * @return the shipment details
+     * @throws ResourceNotFoundException if the shipment does not exist or access is denied
+     */
     @Override
     public ShipmentDto getShipmentByTrackingNumber(String trackingNumber) {
         Shipment shipment = shipmentRepository.findByTrackingNumber(trackingNumber)
@@ -116,6 +157,15 @@ public class ShipmentServiceImpl implements ShipmentService {
         return toDto(shipment);
     }
 
+    /**
+     * Updates the current location of a shipment.
+     *
+     * @param id              the unique identifier of the shipment
+     * @param currentLocation the new location of the shipment
+     * @return the updated shipment details
+     * @throws IllegalStateException if the user is not an administrator
+     * @throws ResourceNotFoundException if the shipment does not exist
+     */
     @Override
     public ShipmentDto updateShipmentLocation(Long id, String currentLocation) {
         if (!CurrentUserUtil.isAdmin()) {
@@ -128,6 +178,15 @@ public class ShipmentServiceImpl implements ShipmentService {
         return toDto(shipmentRepository.save(shipment));
     }
 
+    /**
+     * Updates the shipment dates and current location.
+     *
+     * @param id          the unique identifier of the shipment
+     * @param shipmentDto the updated shipment details
+     * @return the updated shipment details
+     * @throws IllegalStateException if the user is not an administrator
+     * @throws ResourceNotFoundException if the shipment does not exist
+     */
     @Override
     public ShipmentDto updateShipment(Long id, ShipmentDto shipmentDto) {
         if (!CurrentUserUtil.isAdmin()) {
@@ -146,6 +205,13 @@ public class ShipmentServiceImpl implements ShipmentService {
         return toDto(shipmentRepository.save(shipment));
     }
 
+    /**
+     * Deletes a shipment and its associated tracking updates.
+     *
+     * @param id the unique identifier of the shipment to delete
+     * @throws IllegalStateException if the user is not an administrator
+     * @throws ResourceNotFoundException if the shipment does not exist
+     */
     @Transactional
     @Override
     public void deleteShipment(Long id) {
@@ -159,6 +225,12 @@ public class ShipmentServiceImpl implements ShipmentService {
         shipmentRepository.delete(shipment);
     }
 
+    /**
+     * Retrieves the shipment associated with a specific parcel.
+     *
+     * @param parcelId the unique identifier of the parcel
+     * @return the associated shipment, or null if not found or unauthorized
+     */
     @Override
     public ShipmentDto getShipmentByParcelId(Long parcelId) {
         return shipmentRepository.findByParcel_ParcelId(parcelId)
@@ -170,6 +242,12 @@ public class ShipmentServiceImpl implements ShipmentService {
                 .orElse(null);
     }
 
+    /**
+     * Searches for shipments using a keyword.
+     *
+     * @param keyword the search string
+     * @return a list of shipments matching the criteria
+     */
     @Override
     public List<ShipmentDto> search(String keyword) {
         List<ShipmentDto> shipments = getAllShipments();
@@ -189,6 +267,12 @@ public class ShipmentServiceImpl implements ShipmentService {
                 .toList();
     }
 
+    /**
+     * Converts a {@link Shipment} entity to a {@link ShipmentDto}.
+     *
+     * @param shipment the shipment entity
+     * @return the converted DTO
+     */
     private ShipmentDto toDto(Shipment shipment) {
         ShipmentDto dto = new ShipmentDto();
         dto.setShipmentId(shipment.getShipmentId());

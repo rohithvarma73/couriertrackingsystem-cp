@@ -17,23 +17,46 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link AuthServiceImpl} covering user registration business logic.
+ *
+ * <p>Uses the Mockito JUnit 5 extension to isolate the service layer from its
+ * dependencies ({@link AppUserRepository}, {@link CustomerRepository}, and
+ * {@link PasswordEncoder}). Scenarios validated include successful registration,
+ * duplicate username rejection, duplicate email rejection, password/confirm-password
+ * mismatch rejection, and enforcement of the immutable {@code USER} role for all
+ * self-registered accounts.</p>
+ *
+ * @author Dharshan K S
+ * @version 1.0
+ * @since 1.0
+ */
 @ExtendWith(MockitoExtension.class)
 class AuthServiceImplTest {
 
+    /** Mocked repository for {@link AppUser} persistence operations. */
     @Mock
     private AppUserRepository appUserRepository;
 
+    /** Mocked repository for {@code Customer} persistence operations (used during registration). */
     @Mock
     private CustomerRepository customerRepository;
 
+    /** Mocked password encoder used to hash plain-text passwords before persistence. */
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    /** The {@link AuthServiceImpl} instance under test with mocked dependencies injected. */
     @InjectMocks
     private AuthServiceImpl authService;
 
+    /** A pre-built {@link RegisterDto} with valid registration data reused across tests. */
     private RegisterDto validDto;
 
+    /**
+     * Initialises a valid {@link RegisterDto} before each test so that individual
+     * test methods can mutate only the fields they need to exercise.
+     */
     @BeforeEach
     void setUp() {
         validDto = new RegisterDto();
@@ -48,6 +71,11 @@ class AuthServiceImplTest {
 
     // ── register success ──────────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@link AuthServiceImpl#register(RegisterDto)} completes without
+     * throwing an exception when all supplied registration details are valid, and confirms
+     * that the user entity is saved and the password is encoded exactly once.
+     */
     @Test
     void register_validInput_createsUserAndCustomer() {
         when(appUserRepository.existsByUsername("newuser")).thenReturn(false);
@@ -62,6 +90,11 @@ class AuthServiceImplTest {
 
     // ── duplicate username ────────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@link AuthServiceImpl#register(RegisterDto)} throws a
+     * {@link RuntimeException} whose message references "username" when an account
+     * with the same username already exists, and confirms that no user is persisted.
+     */
     @Test
     void register_duplicateUsername_throwsRuntimeException() {
         when(appUserRepository.existsByUsername("newuser")).thenReturn(true);
@@ -73,6 +106,11 @@ class AuthServiceImplTest {
 
     // ── duplicate email ───────────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@link AuthServiceImpl#register(RegisterDto)} throws a
+     * {@link RuntimeException} whose message references "email" when an account
+     * with the same email address already exists, and confirms that no user is persisted.
+     */
     @Test
     void register_duplicateEmail_throwsRuntimeException() {
         when(appUserRepository.existsByUsername("newuser")).thenReturn(false);
@@ -85,6 +123,12 @@ class AuthServiceImplTest {
 
     // ── password mismatch ─────────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@link AuthServiceImpl#register(RegisterDto)} throws a
+     * {@link RuntimeException} whose message references "password" when the
+     * {@code password} and {@code confirmPassword} fields do not match, and
+     * confirms that no user is persisted.
+     */
     @Test
     void register_passwordMismatch_throwsRuntimeException() {
         validDto.setConfirmPassword("differentpassword");
@@ -99,6 +143,12 @@ class AuthServiceImplTest {
 
     // ── role is always USER ───────────────────────────────────────────────────
 
+    /**
+     * Verifies that {@link AuthServiceImpl#register(RegisterDto)} always assigns the
+     * {@code USER} role to a self-registered account, regardless of any role value that
+     * might be present in the DTO, enforcing the security principle that only administrators
+     * can elevate privileges.
+     */
     @Test
     void register_newUser_roleIsAlwaysUser() {
         when(appUserRepository.existsByUsername("newuser")).thenReturn(false);

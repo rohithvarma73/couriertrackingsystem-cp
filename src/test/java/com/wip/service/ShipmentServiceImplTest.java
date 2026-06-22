@@ -26,6 +26,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link ShipmentServiceImpl}.
+ *
+ * <p>Validates the business logic for creating, retrieving, updating, and deleting
+ * shipments. Uses Mockito to mock dependencies like the data repositories and static
+ * utility classes (e.g., {@link CurrentUserUtil}) to isolate the service layer during testing.</p>
+ *
+ * @author Dharshan K S
+ * @version 1.0
+ * @since 1.0
+ */
 @ExtendWith(MockitoExtension.class)
 class ShipmentServiceImplTest {
 
@@ -41,6 +52,9 @@ class ShipmentServiceImplTest {
     private Parcel parcel;
     private Shipment shipment;
 
+    /**
+     * Sets up the test environment before each test.
+     */
     @BeforeEach
     void setUp() {
         adminUser = new AppUser();
@@ -62,8 +76,9 @@ class ShipmentServiceImplTest {
         shipment.setCreatedBy(adminUser);
     }
 
-    // ── addShipment ───────────────────────────────────────────────────────────
-
+    /**
+     * Validates that an admin user can successfully create a new shipment.
+     */
     @Test
     void addShipment_asAdmin_createsShipmentWithTrackingNumber() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -84,6 +99,9 @@ class ShipmentServiceImplTest {
         }
     }
 
+    /**
+     * Validates that a non-admin user is restricted from creating a shipment.
+     */
     @Test
     void addShipment_asNonAdmin_throwsIllegalState() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -94,6 +112,9 @@ class ShipmentServiceImplTest {
         }
     }
 
+    /**
+     * Validates that a resource not found exception is thrown when creating a shipment for a non-existent parcel.
+     */
     @Test
     void addShipment_parcelNotFound_throwsException() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -108,6 +129,9 @@ class ShipmentServiceImplTest {
         }
     }
 
+    /**
+     * Validates that an illegal state exception is thrown when creating a duplicate shipment for a parcel.
+     */
     @Test
     void addShipment_duplicateShipment_throwsIllegalState() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -125,8 +149,9 @@ class ShipmentServiceImplTest {
         }
     }
 
-    // ── getShipmentById ───────────────────────────────────────────────────────
-
+    /**
+     * Validates that an admin can fetch a shipment by ID.
+     */
     @Test
     void getShipmentById_asAdmin_returnsShipment() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -140,6 +165,9 @@ class ShipmentServiceImplTest {
         }
     }
 
+    /**
+     * Validates that a resource not found exception is thrown when fetching a non-existent shipment by ID.
+     */
     @Test
     void getShipmentById_notFound_throwsException() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -150,8 +178,9 @@ class ShipmentServiceImplTest {
         }
     }
 
-    // ── getShipmentByTrackingNumber ───────────────────────────────────────────
-
+    /**
+     * Validates that a shipment can be successfully fetched using its tracking number.
+     */
     @Test
     void getByTrackingNumber_asAdmin_returnsShipment() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -165,6 +194,9 @@ class ShipmentServiceImplTest {
         }
     }
 
+    /**
+     * Validates that a resource not found exception is thrown for an invalid tracking number.
+     */
     @Test
     void getByTrackingNumber_notFound_throwsException() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -177,8 +209,9 @@ class ShipmentServiceImplTest {
         }
     }
 
-    // ── updateShipmentLocation ────────────────────────────────────────────────
-
+    /**
+     * Validates that an admin user can update the current location of a shipment.
+     */
     @Test
     void updateLocation_asAdmin_updatesSuccessfully() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -199,6 +232,9 @@ class ShipmentServiceImplTest {
         }
     }
 
+    /**
+     * Validates that a non-admin user is restricted from updating a shipment's location.
+     */
     @Test
     void updateLocation_asNonAdmin_throwsIllegalState() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -210,8 +246,9 @@ class ShipmentServiceImplTest {
         }
     }
 
-    // ── getAllShipments ───────────────────────────────────────────────────────
-
+    /**
+     * Validates that fetching all shipments returns the complete list.
+     */
     @Test
     void getAllShipments_asAdmin_returnsAll() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {
@@ -224,6 +261,9 @@ class ShipmentServiceImplTest {
         }
     }
 
+    /**
+     * Validates that an empty list is returned when there are no shipments.
+     */
     @Test
     void getAllShipments_emptyDatabase_returnsEmptyList() {
         try (MockedStatic<CurrentUserUtil> util = mockStatic(CurrentUserUtil.class)) {

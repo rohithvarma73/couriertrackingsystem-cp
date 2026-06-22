@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.wip"},{"l":"com.wip.config"},{"l":"com.wip.controller"},{"l":"com.wip.dto"},{"l":"com.wip.entity"},{"l":"com.wip.exception"},{"l":"com.wip.repository"},{"l":"com.wip.security"},{"l":"com.wip.service"},{"l":"com.wip.util"}];updateSearchResults();
