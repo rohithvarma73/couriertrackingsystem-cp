@@ -1,0 +1,1 @@
+memberSearchIndex = [{"p":"com.wip","c":"CouriertrackingsystemApplication","l":"CouriertrackingsystemApplication()","u":"%3Cinit%3E()"},{"p":"com.wip","c":"CouriertrackingsystemApplication","l":"main(String[])","u":"main(java.lang.String[])"}];updateSearchResults();
