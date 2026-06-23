@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
  * documentation is served at {@code /swagger-ui.html} and the OpenAPI spec at
  * {@code /v3/api-docs} by default when SpringDoc is on the classpath.</p>
  *
- * @author Rohith Varma K
+ * @author Dharshan K S (dharshan.ks@wipro.com)
  * @version 1.0
  * @since 1.0
  */

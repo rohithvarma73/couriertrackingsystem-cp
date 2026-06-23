@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * the REST API accessible to browser-based clients hosted on different domains or ports
  * during development and production.</p>
  *
- * @author Rohith Varma K
+ * @author Dharshan K S (dharshan.ks@wipro.com)
  * @version 1.0
  * @since 1.0
  */
