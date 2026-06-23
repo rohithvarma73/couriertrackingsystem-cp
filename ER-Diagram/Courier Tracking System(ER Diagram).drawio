@@ -1,0 +1,76 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="2nSSd5bK_ANmuVa3EUHV">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-4" edge="1" parent="1" source="PLkJsrRcG63Ba4tcjO_A-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fillColor=#ffe6cc;strokeColor=#d79b00;" target="PLkJsrRcG63Ba4tcjO_A-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-14" edge="1" parent="1" source="PLkJsrRcG63Ba4tcjO_A-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="PLkJsrRcG63Ba4tcjO_A-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-16" connectable="0" parent="PLkJsrRcG63Ba4tcjO_A-14" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.5778" y="-3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-17" connectable="0" parent="PLkJsrRcG63Ba4tcjO_A-14" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="M" vertex="1">
+          <mxGeometry relative="1" x="0.4889" y="-1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-1" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=1;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" value="CUSTOMER" vertex="1">
+          <mxGeometry height="140" width="160" x="140" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-2" parent="PLkJsrRcG63Ba4tcjO_A-1" style="align=left;strokeColor=#d79b00;fillColor=#ffe6cc;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;fontStyle=1" value="Pk customer_id&lt;br&gt;customer_name&lt;br&gt;email&lt;div&gt;phone&lt;/div&gt;&lt;div&gt;address&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="90" width="160" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-5" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=1;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="PARCEL" vertex="1">
+          <mxGeometry height="175" width="160" x="140" y="255" as="geometry" />
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-6" parent="PLkJsrRcG63Ba4tcjO_A-5" style="align=left;strokeColor=#d6b656;fillColor=#fff2cc;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;fontStyle=1" value="PK parcel_id&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;receiver_phone&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;div&gt;weight&lt;/div&gt;&lt;div&gt;source_address&lt;/div&gt;&lt;div&gt;destination_address&lt;/div&gt;&lt;div&gt;booking_date&lt;/div&gt;&lt;div&gt;FK customer_id&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="125" width="160" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-21" edge="1" parent="1" source="PLkJsrRcG63Ba4tcjO_A-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="PLkJsrRcG63Ba4tcjO_A-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-22" connectable="0" parent="PLkJsrRcG63Ba4tcjO_A-21" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.8311" y="3" as="geometry">
+            <mxPoint y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-23" connectable="0" parent="PLkJsrRcG63Ba4tcjO_A-21" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="M" vertex="1">
+          <mxGeometry relative="1" x="0.7067" y="3" as="geometry">
+            <mxPoint y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-8" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=1;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="SHIPMENT" vertex="1">
+          <mxGeometry height="160" width="159" x="390" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-9" parent="PLkJsrRcG63Ba4tcjO_A-8" style="align=left;strokeColor=#b85450;fillColor=#f8cecc;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;fontStyle=1" value="PK shipment_id&lt;div&gt;tracking_number&lt;/div&gt;&lt;div&gt;shipment_date&lt;/div&gt;&lt;div&gt;current_location&lt;/div&gt;&lt;div&gt;FK parcel_id&lt;/div&gt;&lt;div&gt;estimated_delivery_date&lt;/div&gt;" vertex="1">
+          <mxGeometry height="110" width="159" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-10" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=1;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="TRACKING_UPDATE" vertex="1">
+          <mxGeometry height="155" width="155" x="655" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-11" parent="PLkJsrRcG63Ba4tcjO_A-10" style="align=left;strokeColor=#9673a6;fillColor=#e1d5e7;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;fontStyle=1" value="update_id PK&lt;br&gt;shipment_id FK&lt;br&gt;delivery_status&lt;br&gt;location&lt;br&gt;remarks&lt;br&gt;updated_Time" vertex="1">
+          <mxGeometry height="105" width="155" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-18" edge="1" parent="1" source="PLkJsrRcG63Ba4tcjO_A-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="PLkJsrRcG63Ba4tcjO_A-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-19" connectable="0" parent="PLkJsrRcG63Ba4tcjO_A-18" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.313" y="2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="PLkJsrRcG63Ba4tcjO_A-20" connectable="0" parent="PLkJsrRcG63Ba4tcjO_A-18" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="1" vertex="1">
+          <mxGeometry relative="1" x="0.7565" y="7" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
